@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情景交融光譜圖 — 課堂互動投影</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+  background: #1a1a2e;
+  color: #eaeaea;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+
+/* ── Header ── */
+header { text-align: center; margin-bottom: 28px; }
+header h1 {
+  font-size: clamp(24px, 4vw, 36px);
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, #2D5B8A, #7BB36D, #C9443E);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
+
+/* ── Tabs ── */
+.tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn {
+  flex: 1; min-width: 100px; padding: 10px 14px; border: none;
+  border-radius: 8px 8px 0 0; background: #2a2a3e; cursor: pointer;
+  font-size: 14px; font-weight: bold; transition: all 0.2s;
+  color: #888; font-family: inherit;
+}
+.tab-btn:hover { background: #333; color: #ccc; }
+.tab-btn.active { background: #16213e; color: #fff; box-shadow: 0 -2px 0 #7BB36D; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.card {
+  background: #16213e;
+  border-radius: 14px;
+  padding: clamp(16px, 3vw, 32px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  margin-bottom: 20px;
+}
+
+/* ════════════════════════════════════════════ */
+/* TAB 1: SLIDER SPECTRUM */
+/* ════════════════════════════════════════════ */
+.spectrum-title {
+  text-align: center;
+  font-size: clamp(18px, 2.5vw, 24px);
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+/* Stage marker row */
+.stage-markers {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+  padding: 0 4px;
+}
+.stage-marker {
+  font-size: clamp(9px, 1.2vw, 12px);
+  color: #888;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 2px 0;
+}
+.stage-marker:hover { color: #fff; }
+.stage-marker.active { color: #fff; font-weight: bold; }
+
+/* Custom slider */
+.slider-wrapper {
+  position: relative;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.gradient-track {
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: 14px;
+  transform: translateY(-50%);
+  border-radius: 7px;
+  background: linear-gradient(90deg, #2D5B8A, #4A8BC2, #7BB36D, #E8923E, #C9443E);
+  z-index: 0;
+}
+.slider-wrapper input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 14px;
+  background: transparent;
+  outline: none;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+}
+.slider-wrapper input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #1a1a2e;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.slider-wrapper input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+.slider-wrapper input[type="range"]::-moz-range-thumb {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #1a1a2e;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+
+/* Slider labels */
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  padding: 0 4px;
+}
+.slider-labels span {
+  font-size: clamp(10px, 1.3vw, 13px);
+  font-weight: bold;
+  color: rgba(255,255,255,0.5);
+  transition: color 0.3s;
+}
+.slider-labels span.active { color: #fff; }
+
+/* Info panel */
+.info-panel {
+  margin-top: 20px;
+  padding: 18px 22px;
+  background: #0f3460;
+  border-radius: 12px;
+  border-left: 5px solid #7BB36D;
+  transition: border-color 0.3s;
+  min-height: 200px;
+}
+.info-panel .stage-badge {
+  display: inline-block;
+  padding: 3px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.info-panel .quote-text {
+  font-size: clamp(16px, 2vw, 20px);
+  color: #f0e6d0;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  border-left: 3px solid rgba(255,255,255,0.15);
+}
+.info-panel .analysis-text {
+  font-size: clamp(13px, 1.5vw, 15px);
+  color: #b0b8c8;
+  line-height: 1.7;
+}
+.info-panel .extra-box {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: rgba(123,179,109,0.12);
+  border-radius: 8px;
+  border: 1px solid rgba(123,179,109,0.3);
+}
+.info-panel .extra-box p { font-size: 13px; color: #c0d8b0; line-height: 1.6; }
+.info-panel .extra-box strong { color: #7BB36D; }
+
+/* Teacher note */
+.teacher-note {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: rgba(232,146,62,0.1);
+  border-radius: 8px;
+  border: 1px dashed rgba(232,146,62,0.3);
+  font-size: 13px;
+  color: #d0b890;
+  line-height: 1.6;
+}
+.teacher-note strong { color: #E8923E; }
+
+/* ════════════════════════════════════════════ */
+/* TAB 2: SENTENCE SORTING (Click-based) */
+/* ════════════════════════════════════════════ */
+.game-area { display: flex; gap: 24px; flex-wrap: wrap; }
+.sentence-pool { flex: 1; min-width: 260px; }
+.spectrum-dropzone { flex: 1; min-width: 260px; }
+
+.sentence-card {
+  background: #0f3460;
+  border: 2px solid #2a4a7a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 14px;
+  transition: all 0.2s;
+  color: #d0d8e0;
+}
+.sentence-card:hover { border-color: #4a8bc2; background: #1a4070; }
+.sentence-card.selected { border-color: #7BB36D; background: #1a4a2a; color: #fff; }
+.sentence-card.dropped { opacity: 0.4; cursor: default; pointer-events: none; }
+
+.dropzone-row { display: flex; border-radius: 8px; overflow: hidden; height: auto; min-height: 50px; margin-bottom: 0; }
+.drop-segment {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-start; padding: 6px 2px;
+  color: rgba(255,255,255,0.5); font-size: 10px; font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  min-height: 60px;
+  cursor: pointer;
+}
+.drop-segment.s0 { background: #2D5B8A; }
+.drop-segment.s1 { background: #4A8BC2; }
+.drop-segment.s2 { background: #7BB36D; }
+.drop-segment.s3 { background: #E8923E; }
+.drop-segment.s4 { background: #C9443E; }
+.drop-segment:hover { filter: brightness(1.15); }
+.drop-segment .drop-label { font-size: 10px; margin-bottom: 3px; text-align: center; }
+.drop-segment .dropped-item {
+  font-size: 10px; color: #fff; text-align: center;
+  line-height: 1.3; padding: 1px 2px; width: 100%;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  margin-top: 2px;
+  padding-top: 2px;
+}
+.dropzone-labels { display: flex; margin-bottom: 4px; }
+.dropzone-labels span { flex:1; text-align:center; font-size:11px; color:#777; }
+
+.placed-count { text-align:center; margin:10px 0; font-size:13px; color:#888; }
+
+.btn-group { display:flex; justify-content:center; gap:10px; margin-top:14px; flex-wrap:wrap; }
+.btn {
+  padding: 8px 22px; border: none; border-radius: 8px;
+  font-size: 14px; font-weight: bold; cursor: pointer;
+  transition: all 0.2s; font-family: inherit;
+}
+.btn-check { background: #7BB36D; color: #fff; }
+.btn-check:hover { background: #6a9f5e; }
+.btn-reset { background: #444; color: #ccc; }
+.btn-reset:hover { background: #555; }
+.btn-show { background: #4A8BC2; color: #fff; }
+.btn-show:hover { background: #3a7bb0; }
+
+.result-area { margin-top:14px; padding:14px; border-radius:8px; display:none; font-size:13px; line-height:1.6; }
+.result-area.show { display:block; }
+.result-area.correct { background: rgba(123,179,109,0.15); border:1px solid #7BB36D; }
+.result-area.incorrect { background: rgba(201,68,62,0.15); border:1px solid #C9443E; }
+.result-item { padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+.result-item:last-child { border-bottom:none; }
+.ri-correct { color: #7BB36D; font-weight:bold; }
+.ri-incorrect { color: #C9443E; font-weight:bold; }
+
+/* ════════════════════════════════════════════ */
+/* TAB 3: DEEP ANALYSIS + EXTENSION */
+/* ════════════════════════════════════════════ */
+.analysis-section { margin-bottom: 20px; }
+.analysis-section h3 {
+  font-size: 16px; margin-bottom: 10px;
+  color: #7BB36D; border-left: 3px solid #7BB36D; padding-left: 12px;
+}
+.analysis-section p, .analysis-section li {
+  font-size: 14px; line-height: 1.8; color: #b0b8c8; margin-bottom: 8px;
+}
+.analysis-section ul { padding-left: 22px; }
+.analysis-section strong { color: #e0e8f0; }
+
+.compare-table {
+  width: 100%; border-collapse: collapse; margin: 12px 0;
+  font-size: 13px;
+}
+.compare-table th, .compare-table td {
+  padding: 10px 14px; border: 1px solid #2a4a7a;
+  text-align: left; vertical-align: top;
+}
+.compare-table th { background: #0f3460; color: #4A8BC2; font-weight: bold; }
+.compare-table td { background: rgba(15,52,96,0.3); color: #b0b8c8; }
+
+/* Student picker */
+.picker-area { margin-top: 16px; }
+.picker-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.picker-row select, .picker-row input {
+  flex: 1; min-width: 200px;
+  padding: 8px 12px; border-radius: 8px; border: 1px solid #2a4a7a;
+  background: #0f3460; color: #eaeaea; font-size: 14px;
+  font-family: inherit;
+}
+.picker-row select option { color: #eaeaea; }
+.picker-btn {
+  padding: 8px 20px; border: none; border-radius: 8px;
+  background: #7BB36D; color: #fff; font-weight: bold;
+  cursor: pointer; font-family: inherit; font-size: 14px;
+}
+.picker-btn:hover { background: #6a9f5e; }
+.picker-result {
+  margin-top: 8px; padding: 12px 16px; border-radius: 8px;
+  background: rgba(15,52,96,0.5); border: 1px solid #2a4a7a;
+  font-size: 13px; color: #b0b8c8; line-height: 1.6;
+  min-height: 50px;
+}
+
+/* Lyric extension */
+.lyric-input-area { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.lyric-input-area input { flex: 1; min-width: 200px; padding: 8px 12px; border-radius: 8px; border: 1px solid #2a4a7a; background: #0f3460; color: #eaeaea; font-size: 14px; font-family: inherit; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .game-area { flex-direction: column; }
+  .dropzone-row { min-height: 40px; }
+  .drop-segment { min-height: 44px; font-size: 9px; }
+  .compare-table th, .compare-table td { padding: 6px 8px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>情景交融光譜圖</h1>
+  <p>拖曳滑桿，體驗「純寫景」到「純抒情」的過渡</p>
+</header>
+
+<div class="tabs" id="tabNav">
+  <button class="tab-btn active" data-tab="tab1">一、光譜探索</button>
+  <button class="tab-btn" data-tab="tab2">二、句子歸類</button>
+  <button class="tab-btn" data-tab="tab3">三、深度分析 &amp; 延伸</button>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 1: SLIDER SPECTRUM -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab1">
+  <div class="card">
+    <div class="spectrum-title">🎯 拖曳滑桿探索光譜</div>
+    <p style="text-align:center;font-size:13px;color:#888;margin-bottom:14px;">
+      愈往左：寫景愈多、抒情愈淡 &nbsp;•&nbsp; 愈往右：寫景愈少、抒情愈濃
+    </p>
+
+    <!-- Stage markers -->
+    <div class="stage-markers">
+      <span class="stage-marker" data-pos="0">純寫景</span>
+      <span class="stage-marker" data-pos="25">景中隱情</span>
+      <span class="stage-marker" data-pos="50">情景交融 ★</span>
+      <span class="stage-marker" data-pos="75">情借景抒</span>
+      <span class="stage-marker" data-pos="100">純抒情</span>
+    </div>
+
+    <!-- Slider -->
+    <div class="slider-wrapper">
+      <div class="gradient-track"></div>
+      <input type="range" id="spectrumSlider" min="0" max="100" value="0" step="1">
+    </div>
+
+    <div class="slider-labels">
+      <span id="labelLeft">← 寫景多</span>
+      <span id="labelRight">抒情濃 →</span>
+    </div>
+
+    <!-- Info panel -->
+    <div class="info-panel" id="infoPanel">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="teacher-note">
+      <strong>🧑‍🏫 課堂建議：</strong>
+      先讓學生將滑桿拖到中間（情景交融），<strong>猜猜看哪一句原文最適合放在這裏</strong>，再公布答案。之後可請學生自行找一句課文句子，用下方的「句子歸類」分頁判斷位置。進階延伸：找一句粵語歌詞套入光譜比較。
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 2: SENTENCE SORTING -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab2">
+  <div class="card">
+    <h2 style="font-size:17px;margin-bottom:6px;">句子歸類活動</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:12px;">先點選左邊句子，再點擊光譜上的階段放置。</p>
+
+    <div class="game-area">
+      <div class="sentence-pool">
+        <h3 style="font-size:13px;margin-bottom:8px;color:#777;">📄 句子列表</h3>
+        <div id="sentencePool"></div>
+      </div>
+      <div class="spectrum-dropzone">
+        <div class="dropzone-labels">
+          <span>純寫景</span><span>景中隱情</span><span>情景交融</span><span>情借景抒</span><span>純抒情</span>
+        </div>
+        <div class="dropzone-row" id="dropzoneRow">
+          <div class="drop-segment s0" data-drop="0"><span class="drop-label">純寫景</span></div>
+          <div class="drop-segment s1" data-drop="1"><span class="drop-label">景中隱情</span></div>
+          <div class="drop-segment s2" data-drop="2"><span class="drop-label">情景交融</span></div>
+          <div class="drop-segment s3" data-drop="3"><span class="drop-label">情借景抒</span></div>
+          <div class="drop-segment s4" data-drop="4"><span class="drop-label">純抒情</span></div>
+        </div>
+        <div class="placed-count" id="placedCount">已放置 0 / 8 句</div>
+        <div class="btn-group">
+          <button class="btn btn-check" id="checkBtn">✓ 檢查答案</button>
+          <button class="btn btn-show" id="showBtn">🔍 顯示答案</button>
+          <button class="btn btn-reset" id="resetBtn">↺ 重新開始</button>
+        </div>
+        <div class="result-area" id="resultArea"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 3: DEEP ANALYSIS + EXTENSION -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab3">
+  <div class="card">
+    <h2 style="font-size:17px;margin-bottom:4px;">深度分析</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:14px;">為甚麼「然後知吾嚮之未始遊，遊於是乎始」屬於純抒情？</p>
+
+    <div class="analysis-section">
+      <p>這句話之所以能穩穩落在光譜最右端「純抒情」位置，關鍵在於它<strong>完全脫離了眼前的具體景物</strong>，是一句純粹向內心、向認知層面發出的感悟陳述。</p>
+
+      <h3>一、句中沒有任何一個「景」字</h3>
+      <p>把這句話拆開來看：「然後」是時間承接詞、「知」是認知動詞、「吾嚮之未始遊」是對過去自我狀態的否定判斷、「遊於是乎始」是對「遊」重新下定義。整句話<strong>沒有出現任何一個具體的物象</strong>——沒有山、沒有水、沒有草木雲霧，甚至連方位、時間、天氣都沒有交代。這與「凡數州之土壤，皆在衽席之下」那種純寫景的句子正好構成兩個極端：<strong>一句全是「眼睛看見的」，一句全是「心裏想通的」</strong>。</p>
+
+      <h3>二、這是一句「判斷句」，而非「描寫句」</h3>
+      <p>核心動詞是「知」——一個表示認知、領悟的動詞，而非「見」「望」「登」這類感官動詞。作者在這裏做的事情，不是在向讀者「展示」畫面，而是在向讀者「宣告」一個結論。這是帶有強烈主觀判斷色彩的陳述，屬於純粹的心理活動記錄，與寫景毫無關係。</p>
+
+      <h3>三、否定句式強化了「向內轉」的抒情效果</h3>
+      <p>「未始遊」是一個否定句式——作者不是在說「我以前遊得不夠好」，而是從根本上否定過去經驗的真實性。這種帶有反思、甚至自我推翻意味的否定句式，是典型的抒情語言特徵（近似於「悔悟」「頓悟」的語氣），與寫景所需要的肯定性、客觀性描述語言方向完全不同。</p>
+
+      <h3>四、在全文結構中的位置</h3>
+      <p>這句話出現在全文的收束處——前面已寫完壯闊視野、物我交融、忘我境界，所有的「景」都已交代完畢。這句話的功能不是繼續帶讀者「看見」什麼，而是帶讀者「想通」什麼——<strong>用一句不帶景物的斷語，把前面所有的畫面感受濃縮成一個抽象的道理</strong>。</p>
+
+      <h3>五、與純寫景例句對照</h3>
+      <table class="compare-table">
+        <tr><th>比較項目</th><th>「凡數州之土壤，皆在衽席之下」</th><th>「然後知吾嚮之未始遊，遊於是乎始」</th></tr>
+        <tr><td>核心動詞</td><td>「在」——描述客觀位置狀態</td><td>「知」——描述主觀認知活動</td></tr>
+        <tr><td>句子功能</td><td>呈現畫面</td><td>宣告領悟</td></tr>
+        <tr><td>有無具體物象</td><td>有（土壤、衽席）</td><td>完全沒有</td></tr>
+        <tr><td>讀者接收到的</td><td>視覺畫面</td><td>思想結論</td></tr>
+        <tr><td>光譜位置</td><td>偏左（純寫景／景中隱情）</td><td>最右（純抒情）</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Student self-selection -->
+  <div class="card">
+    <h2 style="font-size:17px;margin-bottom:4px;">🧑‍🎓 學生自選練習</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:14px;">從課文中揀一句，判斷它在光譜上的位置，並說明理由。</p>
+    <div class="picker-area">
+      <div class="picker-row">
+        <select id="sentenceSelect">
+          <option value="">—— 請選擇一句課文 ——</option>
+          <option value="自余為僇人，居是州，恆惴慄">自余為僇人，居是州，恆惴慄</option>
+          <option value="施施而行，漫漫而遊">施施而行，漫漫而遊</option>
+          <option value="過湘江，緣染溪，斫榛莽，焚茅茷">過湘江，緣染溪，斫榛莽，焚茅茷</option>
+          <option value="凡數州之土壤，皆在衽席之下">凡數州之土壤，皆在衽席之下</option>
+          <option value="縈青繚白，外與天際，四望如一">縈青繚白，外與天際，四望如一</option>
+          <option value="悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮">悠悠乎與灝氣俱，洋洋乎與造物者遊</option>
+          <option value="心凝形釋，與萬化冥合">心凝形釋，與萬化冥合</option>
+          <option value="然後知吾嚮之未始遊，遊於是乎始">然後知吾嚮之未始遊，遊於是乎始</option>
+          <option value="引觴滿酌，頹然就醉，不知日之入">引觴滿酌，頹然就醉，不知日之入</option>
+          <option value="蒼然暮色，自遠而至，至無所見，而猶不欲歸">蒼然暮色，自遠而至，至無所見，而猶不欲歸</option>
+        </select>
+        <select id="stageSelect">
+          <option value="">—— 判斷光譜位置 ——</option>
+          <option value="0">純寫景</option>
+          <option value="1">景中隱情</option>
+          <option value="2">情景交融</option>
+          <option value="3">情借景抒</option>
+          <option value="4">純抒情</option>
+        </select>
+        <button class="picker-btn" id="pickerSubmit">提交判斷</button>
+      </div>
+      <div class="picker-result" id="pickerResult">選擇句子和光譜位置後，按「提交判斷」檢視回饋。</div>
+    </div>
+  </div>
+
+  <!-- Cantonese lyrics extension -->
+  <div class="card">
+    <h2 style="font-size:17px;margin-bottom:4px;">🎵 延伸：粵語歌詞光譜</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:10px;">
+      試找一句粵語歌詞，套入光譜作判斷。<strong style="color:#7BB36D;">提示：</strong>Beyond〈海闊天空〉「天空海闊你與我可會變」——這句是景（天空海闊）還是情（你我之間的承諾）？屬於光譜哪個階段？
+    </p>
+    <div class="lyric-input-area">
+      <input type="text" id="lyricInput" placeholder="輸入一句粵語歌詞……">
+      <select id="lyricStage">
+        <option value="0">純寫景</option>
+        <option value="1">景中隱情</option>
+        <option value="2">情景交融</option>
+        <option value="3">情借景抒</option>
+        <option value="4">純抒情</option>
+      </select>
+      <button class="picker-btn" id="lyricSubmit">分析</button>
+    </div>
+    <div class="picker-result" id="lyricResult" style="margin-top:10px;"></div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+const stageData = [
+  {
+    name: '純寫景', color: '#2D5B8A',
+    quote: '其高下之勢，岈然窪然，若垤若穴，尺寸千里，攢蹙累積，莫得遯隱',
+    analysis: '純粹描寫從西山俯瞰所見的地形地貌，以「岈然」「窪然」「若垤」「若穴」等比喻客觀呈現景物，未有直接表達情感或評價，是純寫景的典型。整句功能是「呈現畫面」，而非「抒發感受」。',
+    extra: null
+  },
+  {
+    name: '景中隱情', color: '#4A8BC2',
+    quote: '縈青繚白，外與天際，四望如一',
+    analysis: '表面寫青山白水縈繞、遠接天際的景色，但「外與天際」「四望如一」的開闊感，已隱含作者登高望遠後心胸隨之舒展的情感傾向——景中已暗藏「情」的種子，只是尚未明朗。',
+    extra: null
+  },
+  {
+    name: '情景交融 ★', color: '#7BB36D',
+    quote: '悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮',
+    analysis: '情景交融的極致。「悠悠乎」「洋洋乎」既是寫天地之浩瀚（景），同時也是寫作者精神之自由（情）。景不是客觀的景，情也不是抽象的情——二者已融為一體，無法區分何者為景、何者為情。這就是「心凝形釋，與萬化冥合」的具體呈現。',
+    extra: {
+      title: '🎵 跨文本對讀：Beyond〈海闊天空〉',
+      text: '「天空海闊你與我，可會變（誰沒在變）」——「天空海闊」是景（壯闊的空間意象），「你與我可會變」是情（對承諾的追問）。與「悠悠乎與灝氣俱」一樣，景與情在此交融，無法截然分割。'
+    }
+  },
+  {
+    name: '情借景抒', color: '#E8923E',
+    quote: '然後知是山之特立，不與培塿為類',
+    analysis: '名為寫山（西山特立獨行，不與小山丘為伍），實則借山喻己——作者以西山自況，表達自己雖遭貶謫，仍堅持人格獨立、不隨波逐流的高尚情操。情感是主導，景物是情感的載體。',
+    extra: null
+  },
+  {
+    name: '純抒情', color: '#C9443E',
+    quote: '心凝形釋，與萬化冥合。然後知吾嚮之未始遊，遊於是乎始',
+    analysis: '已脫離具體的景物描寫，直接抒發作者的精神體驗與哲學領悟。「心凝形釋」是內在感受的描述，「然後知……」是純粹的思想總結與價值重構。景物在這裏已經隱退，只留下情感與思想。',
+    extra: null
+  }
+];
+
+const sentences = [
+  { id:0, text:'自余為僇人，居是州，恆惴慄',       answer:4 },
+  { id:1, text:'施施而行，漫漫而遊',               answer:4 },
+  { id:2, text:'過湘江，緣染溪，斫榛莽，焚茅茷',   answer:0 },
+  { id:3, text:'凡數州之土壤，皆在衽席之下',         answer:1 },
+  { id:4, text:'引觴滿酌，頹然就醉，不知日之入',     answer:2 },
+  { id:5, text:'蒼然暮色，自遠而至，至無所見，而猶不欲歸', answer:2 },
+  { id:6, text:'然後知吾嚮之未始遊，遊於是乎始',     answer:4 },
+  { id:7, text:'縈青繚白，外與天際，四望如一',       answer:1 }
+];
+
+const stageNames = ['純寫景','景中隱情','情景交融','情借景抒','純抒情'];
+
+// ═══════════════════════════════════════════════
+// TAB 1: SLIDER
+// ═══════════════════════════════════════════════
+const slider = document.getElementById('spectrumSlider');
+const infoPanel = document.getElementById('infoPanel');
+const markers = document.querySelectorAll('.stage-marker');
+
+function getStageFromPos(val) {
+  if (val < 12.5) return 0;
+  if (val < 37.5) return 1;
+  if (val < 62.5) return 2;
+  if (val < 87.5) return 3;
+  return 4;
+}
+
+function updateSlider(val) {
+  const stageIdx = getStageFromPos(val);
+  const d = stageData[stageIdx];
+
+  // Markers
+  markers.forEach(m => {
+    const pos = parseInt(m.dataset.pos);
+    m.classList.toggle('active', pos >= stageIdx*25 && pos <= (stageIdx+1)*25);
+  });
+
+  // Labels
+  document.getElementById('labelLeft').style.color = val < 50 ? '#7BB36D' : 'rgba(255,255,255,0.5)';
+  document.getElementById('labelRight').style.color = val >= 50 ? '#E8923E' : 'rgba(255,255,255,0.5)';
+
+  // Panel
+  let html = `<div class="stage-badge" style="background:${d.color}">${d.name}</div>`;
+  html += `<div class="quote-text">「${d.quote}」</div>`;
+  html += `<div class="analysis-text">${d.analysis}</div>`;
+  if (d.extra) {
+    html += `<div class="extra-box"><p><strong>${d.extra.title}</strong><br>${d.extra.text}</p></div>`;
+  }
+  infoPanel.style.borderLeftColor = d.color;
+  infoPanel.innerHTML = html;
+}
+
+slider.addEventListener('input', function() {
+  updateSlider(parseInt(this.value));
+});
+
+// Click marker to jump
+markers.forEach(m => {
+  m.addEventListener('click', function() {
+    slider.value = this.dataset.pos;
+    updateSlider(parseInt(this.dataset.pos));
+  });
+});
+
+// Init
+updateSlider(0);
+
+// ═══════════════════════════════════════════════
+// TAB 2: SENTENCE SORTING
+// ═══════════════════════════════════════════════
+let placements = {};
+let selectedId = null;
+const pool = document.getElementById('sentencePool');
+const dropSegments = document.querySelectorAll('.drop-segment');
+const placedCount = document.getElementById('placedCount');
+const resultArea = document.getElementById('resultArea');
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+let shuffledSentences = shuffleArray([...sentences]);
+
+function renderPool() {
+  pool.innerHTML = '';
+  shuffledSentences.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'sentence-card';
+    if (placements[s.id] !== undefined) div.classList.add('dropped');
+    if (selectedId === s.id) div.classList.add('selected');
+    div.dataset.sid = s.id;
+    div.textContent = `「${s.text}」`;
+    div.addEventListener('click', function() {
+      if (placements[s.id] !== undefined) return;
+      selectedId = (selectedId === s.id) ? null : s.id;
+      renderPool();
+    });
+    pool.appendChild(div);
+  });
+  updatePlacedCount();
+}
+
+function renderDropzones() {
+  dropSegments.forEach((seg, idx) => {
+    seg.innerHTML = `<span class="drop-label">${stageNames[idx]}</span>`;
+    for (const [sid, stage] of Object.entries(placements)) {
+      if (stage === idx) {
+        const s = sentences.find(x => x.id === parseInt(sid));
+        if (s) {
+          const span = document.createElement('div');
+          span.className = 'dropped-item';
+          span.textContent = `「${s.text}」`;
+          seg.appendChild(span);
+        }
+      }
+    }
+  });
+}
+
+function updatePlacedCount() {
+  const total = sentences.length;
+  const placed = Object.keys(placements).length;
+  placedCount.textContent = `已放置 ${placed} / ${total} 句`;
+}
+
+dropSegments.forEach((seg, idx) => {
+  seg.addEventListener('click', function() {
+    if (selectedId === null) return;
+    if (placements[selectedId] !== undefined) return;
+    placements[selectedId] = idx;
+    selectedId = null;
+    renderPool();
+    renderDropzones();
+    resultArea.classList.remove('show','correct','incorrect');
+  });
+});
+
+function checkAnswers() {
+  const total = Object.keys(placements).length;
+  if (total === 0) {
+    resultArea.className = 'result-area show incorrect';
+    resultArea.innerHTML = '尚未放置任何句子，請先將句子放到光譜上。';
+    return;
+  }
+  let correct = 0;
+  let html = '';
+  sentences.forEach(s => {
+    const userAns = placements[s.id];
+    const isPlaced = userAns !== undefined;
+    const isCorrect = isPlaced && userAns === s.answer;
+    if (isCorrect) correct++;
+    const status = isCorrect ? '✓ 正確' : (isPlaced ? '✗ 錯誤' : '— 未放置');
+    const cls = isCorrect ? 'ri-correct' : (isPlaced ? 'ri-incorrect' : '');
+    html += `<div class="result-item"><span class="${cls}">${status}</span> 「${s.text}」<br>
+      <span style="font-size:12px;color:#888;">正確：${stageNames[s.answer]} | 你的：${isPlaced ? stageNames[userAns] : '—'}</span></div>`;
+  });
+  const allCorrect = correct === sentences.length;
+  html += `<div style="margin-top:8px;font-weight:bold;font-size:14px;">得分：${correct} / ${sentences.length}</div>`;
+  resultArea.className = `result-area show ${allCorrect ? 'correct' : 'incorrect'}`;
+  resultArea.innerHTML = html;
+}
+
+document.getElementById('checkBtn').addEventListener('click', checkAnswers);
+document.getElementById('showBtn').addEventListener('click', function() {
+  sentences.forEach(s => { placements[s.id] = s.answer; });
+  selectedId = null;
+  renderPool(); renderDropzones();
+  resultArea.className = 'result-area show correct';
+  resultArea.innerHTML = '✅ 已顯示所有正確答案。';
+});
+document.getElementById('resetBtn').addEventListener('click', function() {
+  placements = {}; selectedId = null;
+  shuffledSentences = shuffleArray([...sentences]);
+  renderPool(); renderDropzones();
+  resultArea.classList.remove('show','correct','incorrect');
+});
+renderPool(); renderDropzones();
+
+// ═══════════════════════════════════════════════
+// TAB 3: STUDENT PICKER
+// ═══════════════════════════════════════════════
+const answerKey = {
+  '自余為僇人，居是州，恆惴慄': { stage:4, reason:'直接交代貶謫背景與內心憂懼，無景物描寫。' },
+  '施施而行，漫漫而遊': { stage:4, reason:'寫心態（慢行漫遊），是作者主觀心理狀態的記述，無具體景物。' },
+  '過湘江，緣染溪，斫榛莽，焚茅茷': { stage:0, reason:'一連串動作記述，客觀記錄登山過程，近乎純粹的敘事寫景。' },
+  '凡數州之土壤，皆在衽席之下': { stage:1, reason:'寫居高臨下的視野，暗含「超越眾山」的開闊感——景中已隱含情感。' },
+  '縈青繚白，外與天際，四望如一': { stage:1, reason:'青山白水遠接天際，開闊感中隱含舒展之情，屬景中隱情。' },
+  '悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮': { stage:2, reason:'悠悠洋洋既是寫天地浩瀚（景），也是寫精神自由（情），情景完全融合。' },
+  '心凝形釋，與萬化冥合': { stage:4, reason:'純粹的精神體驗描述，完全脫離具體景物。' },
+  '然後知吾嚮之未始遊，遊於是乎始': { stage:4, reason:'純粹的思想領悟與價值重構，無景物、無畫面。' },
+  '引觴滿酌，頹然就醉，不知日之入': { stage:2, reason:'「頹然」「不知」既是行動描寫，也是精神狀態，情景交融。' },
+  '蒼然暮色，自遠而至，至無所見，而猶不欲歸': { stage:2, reason:'暮色降臨（景）與「猶不欲歸」的留戀（情）融合，情景相生。' }
+};
+
+document.getElementById('pickerSubmit').addEventListener('click', function() {
+  const sentence = document.getElementById('sentenceSelect').value;
+  const userStage = document.getElementById('stageSelect').value;
+  const result = document.getElementById('pickerResult');
+
+  if (!sentence || userStage === '') {
+    result.innerHTML = '⚠️ 請先選擇句子和光譜位置。';
+    return;
+  }
+
+  const key = answerKey[sentence];
+  if (!key) {
+    result.innerHTML = '⚠️ 未找到此句的參考答案。';
+    return;
+  }
+
+  const isCorrect = parseInt(userStage) === key.stage;
+  result.innerHTML = `
+    <div style="font-weight:bold;margin-bottom:6px;${isCorrect ? 'color:#7BB36D' : 'color:#C9443E'}">
+      ${isCorrect ? '✓ 判斷正確！' : '✗ 判斷有出入'}
+    </div>
+    <div style="font-size:13px;color:#b0b8c8;">
+      <strong>你的判斷：</strong>${stageNames[parseInt(userStage)]}<br>
+      <strong>參考答案：</strong>${stageNames[key.stage]}<br>
+      <strong>理由：</strong>${key.reason}
+    </div>
+  `;
+});
+
+// Lyric extension
+document.getElementById('lyricSubmit').addEventListener('click', function() {
+  const lyric = document.getElementById('lyricInput').value.trim();
+  const stage = parseInt(document.getElementById('lyricStage').value);
+  const result = document.getElementById('lyricResult');
+
+  if (!lyric) {
+    result.innerHTML = '⚠️ 請輸入一句歌詞。';
+    return;
+  }
+
+  // Simple analysis guidance
+  const hints = [
+    '純寫景——如果這句歌詞純粹描寫景物，沒有任何情感詞語，就落在這個位置。',
+    '景中隱情——如果歌詞表面寫景，但用詞隱含情感傾向（如「淒」「冷」「暗」等），就落在這個位置。',
+    '情景交融——如果歌詞中景與情無法分割，景物本身就是情感的載體，就落在這個位置。',
+    '情借景抒——如果歌詞以景物為主要載體來抒發強烈情感，情為主、景為輔，就落在這個位置。',
+    '純抒情——如果歌詞直接抒發感受，沒有具體的景物描寫，就落在這個位置。'
+  ];
+
+  result.innerHTML = `
+    <div style="color:#ddd;margin-bottom:6px;">
+      「${lyric}」→ <strong>${stageNames[stage]}</strong>
+    </div>
+    <div style="font-size:13px;color:#b0b8c8;">
+      ${hints[stage]}<br>
+      <span style="color:#888;font-size:12px;">💡 試想想：這句歌詞有沒有具體的景物？景物與情感的關係是怎樣的？</span>
+    </div>
+  `;
+});
+
+// ═══════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById(this.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
