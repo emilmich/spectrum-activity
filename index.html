@@ -90,7 +90,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   height: 14px;
   transform: translateY(-50%);
   border-radius: 7px;
-  background: linear-gradient(90deg, #2D5B8A, #4A8BC2, #7BB36D, #E8923E, #C9443E);
+   background: linear-gradient(90deg, #2D5B8A, #7BB36D, #C9443E);
   z-index: 0;
 }
 .slider-wrapper input[type="range"] {
@@ -234,11 +234,9 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   cursor: pointer;
 }
 .drop-segment.s0 { background: #2D5B8A; }
-.drop-segment.s1 { background: #4A8BC2; }
-.drop-segment.s2 { background: #7BB36D; }
-.drop-segment.s3 { background: #E8923E; }
-.drop-segment.s4 { background: #C9443E; }
-.drop-segment:hover { filter: brightness(1.15); }
+.drop-segment.s1 { background: #7BB36D; }
+.drop-segment.s2 { background: #C9443E; }
+.drop-segment:hover { filter: brightness(1.25); }
 .drop-segment .drop-label { font-size: 10px; margin-bottom: 3px; text-align: center; }
 .drop-segment .dropped-item {
   font-size: 10px; color: #fff; text-align: center;
@@ -340,7 +338,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 
 <header>
   <h1>情景交融光譜圖</h1>
-  <p>拖曳滑桿，體驗「純寫景」到「純抒情」的過渡</p>
+  <p>拖曳滑桿，體驗「純寫景」到「純抒情」的過渡，中間是「情景交融」</p>
 </header>
 
 <div class="tabs" id="tabNav">
@@ -362,16 +360,14 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
     <!-- Stage markers -->
     <div class="stage-markers">
       <span class="stage-marker" data-pos="0">純寫景</span>
-      <span class="stage-marker" data-pos="25">景中隱情</span>
       <span class="stage-marker" data-pos="50">情景交融 ★</span>
-      <span class="stage-marker" data-pos="75">情借景抒</span>
       <span class="stage-marker" data-pos="100">純抒情</span>
     </div>
 
     <!-- Slider -->
     <div class="slider-wrapper">
       <div class="gradient-track"></div>
-      <input type="range" id="spectrumSlider" min="0" max="100" value="0" step="1">
+      <input type="range" id="spectrumSlider" min="0" max="100" value="0" step="50">
     </div>
 
     <div class="slider-labels">
@@ -406,14 +402,12 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
       </div>
       <div class="spectrum-dropzone">
         <div class="dropzone-labels">
-          <span>純寫景</span><span>景中隱情</span><span>情景交融</span><span>情借景抒</span><span>純抒情</span>
+          <span>純寫景</span><span style="flex:2">情景交融</span><span>純抒情</span>
         </div>
         <div class="dropzone-row" id="dropzoneRow">
           <div class="drop-segment s0" data-drop="0"><span class="drop-label">純寫景</span></div>
-          <div class="drop-segment s1" data-drop="1"><span class="drop-label">景中隱情</span></div>
-          <div class="drop-segment s2" data-drop="2"><span class="drop-label">情景交融</span></div>
-          <div class="drop-segment s3" data-drop="3"><span class="drop-label">情借景抒</span></div>
-          <div class="drop-segment s4" data-drop="4"><span class="drop-label">純抒情</span></div>
+          <div class="drop-segment s1" data-drop="1" style="flex:2"><span class="drop-label">情景交融</span></div>
+          <div class="drop-segment s2" data-drop="2"><span class="drop-label">純抒情</span></div>
         </div>
         <div class="placed-count" id="placedCount">已放置 0 / 8 句</div>
         <div class="btn-group">
@@ -457,7 +451,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
         <tr><td>句子功能</td><td>呈現畫面</td><td>宣告領悟</td></tr>
         <tr><td>有無具體物象</td><td>有（土壤、衽席）</td><td>完全沒有</td></tr>
         <tr><td>讀者接收到的</td><td>視覺畫面</td><td>思想結論</td></tr>
-        <tr><td>光譜位置</td><td>偏左（純寫景／景中隱情）</td><td>最右（純抒情）</td></tr>
+        <tr><td>光譜位置</td><td>偏左（純寫景）</td><td>最右（純抒情）</td></tr>
       </table>
     </div>
   </div>
@@ -484,10 +478,8 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
         <select id="stageSelect">
           <option value="">—— 判斷光譜位置 ——</option>
           <option value="0">純寫景</option>
-          <option value="1">景中隱情</option>
-          <option value="2">情景交融</option>
-          <option value="3">情借景抒</option>
-          <option value="4">純抒情</option>
+          <option value="1">情景交融</option>
+          <option value="2">純抒情</option>
         </select>
         <button class="picker-btn" id="pickerSubmit">提交判斷</button>
       </div>
@@ -499,16 +491,14 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   <div class="card">
     <h2 style="font-size:17px;margin-bottom:4px;">🎵 延伸：粵語歌詞光譜</h2>
     <p style="font-size:13px;color:#888;margin-bottom:10px;">
-      試找一句粵語歌詞，套入光譜作判斷。<strong style="color:#7BB36D;">提示：</strong>Beyond〈海闊天空〉「天空海闊你與我可會變」——這句是景（天空海闊）還是情（你我之間的承諾）？屬於光譜哪個階段？
+      試找一句粵語歌詞，套入光譜作判斷。<strong style="color:#7BB36D;">提示：</strong>Beyond〈海闊天空〉「天空海闊你與我可會變」——這句是景（天空海闊）還是情（你我之間的承諾）？屬於光譜哪個階段？（提示：景與情各佔一半，難以分割，屬於「情景交融」）
     </p>
     <div class="lyric-input-area">
       <input type="text" id="lyricInput" placeholder="輸入一句粵語歌詞……">
       <select id="lyricStage">
         <option value="0">純寫景</option>
-        <option value="1">景中隱情</option>
-        <option value="2">情景交融</option>
-        <option value="3">情借景抒</option>
-        <option value="4">純抒情</option>
+        <option value="1">情景交融</option>
+        <option value="2">純抒情</option>
       </select>
       <button class="picker-btn" id="lyricSubmit">分析</button>
     </div>
@@ -526,13 +516,7 @@ const stageData = [
   {
     name: '純寫景', color: '#2D5B8A',
     quote: '其高下之勢，岈然窪然，若垤若穴，尺寸千里，攢蹙累積，莫得遯隱',
-    analysis: '純粹描寫從西山俯瞰所見的地形地貌，以「岈然」「窪然」「若垤」「若穴」等比喻客觀呈現景物，未有直接表達情感或評價，是純寫景的典型。整句功能是「呈現畫面」，而非「抒發感受」。',
-    extra: null
-  },
-  {
-    name: '景中隱情', color: '#4A8BC2',
-    quote: '縈青繚白，外與天際，四望如一',
-    analysis: '表面寫青山白水縈繞、遠接天際的景色，但「外與天際」「四望如一」的開闊感，已隱含作者登高望遠後心胸隨之舒展的情感傾向——景中已暗藏「情」的種子，只是尚未明朗。',
+    analysis: '純粹描寫從西山俯瞰所見的地形地貌，以「岈然」「窪然」「若垤」「若穴」等比喻客觀呈現景物，未有直接表達情感或評價。整句功能是「呈現畫面」，而非「抒發感受」。這是最接近「純寫景」一端的典例。',
     extra: null
   },
   {
@@ -545,31 +529,25 @@ const stageData = [
     }
   },
   {
-    name: '情借景抒', color: '#E8923E',
-    quote: '然後知是山之特立，不與培塿為類',
-    analysis: '名為寫山（西山特立獨行，不與小山丘為伍），實則借山喻己——作者以西山自況，表達自己雖遭貶謫，仍堅持人格獨立、不隨波逐流的高尚情操。情感是主導，景物是情感的載體。',
-    extra: null
-  },
-  {
     name: '純抒情', color: '#C9443E',
     quote: '心凝形釋，與萬化冥合。然後知吾嚮之未始遊，遊於是乎始',
-    analysis: '已脫離具體的景物描寫，直接抒發作者的精神體驗與哲學領悟。「心凝形釋」是內在感受的描述，「然後知……」是純粹的思想總結與價值重構。景物在這裏已經隱退，只留下情感與思想。',
+    analysis: '已脫離具體的景物描寫，直接抒發作者的精神體驗與哲學領悟。「心凝形釋」是內在感受的描述，「然後知……」是純粹的思想總結與價值重構。景物在這裏已經隱退，只留下情感與思想。這是最接近「純抒情」一端的典例。',
     extra: null
   }
 ];
 
 const sentences = [
-  { id:0, text:'自余為僇人，居是州，恆惴慄',       answer:4 },
-  { id:1, text:'施施而行，漫漫而遊',               answer:4 },
+  { id:0, text:'自余為僇人，居是州，恆惴慄',       answer:2 },
+  { id:1, text:'施施而行，漫漫而遊',               answer:2 },
   { id:2, text:'過湘江，緣染溪，斫榛莽，焚茅茷',   answer:0 },
   { id:3, text:'凡數州之土壤，皆在衽席之下',         answer:1 },
-  { id:4, text:'引觴滿酌，頹然就醉，不知日之入',     answer:2 },
-  { id:5, text:'蒼然暮色，自遠而至，至無所見，而猶不欲歸', answer:2 },
-  { id:6, text:'然後知吾嚮之未始遊，遊於是乎始',     answer:4 },
+  { id:4, text:'引觴滿酌，頹然就醉，不知日之入',     answer:1 },
+  { id:5, text:'蒼然暮色，自遠而至，至無所見，而猶不欲歸', answer:1 },
+  { id:6, text:'然後知吾嚮之未始遊，遊於是乎始',     answer:2 },
   { id:7, text:'縈青繚白，外與天際，四望如一',       answer:1 }
 ];
 
-const stageNames = ['純寫景','景中隱情','情景交融','情借景抒','純抒情'];
+const stageNames = ['純寫景','情景交融','純抒情'];
 
 // ═══════════════════════════════════════════════
 // TAB 1: SLIDER
@@ -579,11 +557,9 @@ const infoPanel = document.getElementById('infoPanel');
 const markers = document.querySelectorAll('.stage-marker');
 
 function getStageFromPos(val) {
-  if (val < 12.5) return 0;
-  if (val < 37.5) return 1;
-  if (val < 62.5) return 2;
-  if (val < 87.5) return 3;
-  return 4;
+  if (val < 25) return 0;
+  if (val < 75) return 1;
+  return 2;
 }
 
 function updateSlider(val) {
@@ -593,12 +569,12 @@ function updateSlider(val) {
   // Markers
   markers.forEach(m => {
     const pos = parseInt(m.dataset.pos);
-    m.classList.toggle('active', pos >= stageIdx*25 && pos <= (stageIdx+1)*25);
+    m.classList.toggle('active', pos === 0 ? val < 25 : pos === 50 ? (val >= 25 && val < 75) : val >= 75);
   });
 
   // Labels
-  document.getElementById('labelLeft').style.color = val < 50 ? '#7BB36D' : 'rgba(255,255,255,0.5)';
-  document.getElementById('labelRight').style.color = val >= 50 ? '#E8923E' : 'rgba(255,255,255,0.5)';
+  document.getElementById('labelLeft').style.color = val < 33 ? '#7BB36D' : 'rgba(255,255,255,0.5)';
+  document.getElementById('labelRight').style.color = val >= 66 ? '#E8923E' : 'rgba(255,255,255,0.5)';
 
   // Panel
   let html = `<div class="stage-badge" style="background:${d.color}">${d.name}</div>`;
@@ -745,16 +721,16 @@ renderPool(); renderDropzones();
 // TAB 3: STUDENT PICKER
 // ═══════════════════════════════════════════════
 const answerKey = {
-  '自余為僇人，居是州，恆惴慄': { stage:4, reason:'直接交代貶謫背景與內心憂懼，無景物描寫。' },
-  '施施而行，漫漫而遊': { stage:4, reason:'寫心態（慢行漫遊），是作者主觀心理狀態的記述，無具體景物。' },
+  '自余為僇人，居是州，恆惴慄': { stage:2, reason:'直接交代貶謫背景與內心憂懼，無景物描寫，屬於直接抒情。' },
+  '施施而行，漫漫而遊': { stage:2, reason:'寫心態（慢行漫遊），是作者主觀心理狀態的記述，無具體景物。' },
   '過湘江，緣染溪，斫榛莽，焚茅茷': { stage:0, reason:'一連串動作記述，客觀記錄登山過程，近乎純粹的敘事寫景。' },
-  '凡數州之土壤，皆在衽席之下': { stage:1, reason:'寫居高臨下的視野，暗含「超越眾山」的開闊感——景中已隱含情感。' },
-  '縈青繚白，外與天際，四望如一': { stage:1, reason:'青山白水遠接天際，開闊感中隱含舒展之情，屬景中隱情。' },
-  '悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮': { stage:2, reason:'悠悠洋洋既是寫天地浩瀚（景），也是寫精神自由（情），情景完全融合。' },
-  '心凝形釋，與萬化冥合': { stage:4, reason:'純粹的精神體驗描述，完全脫離具體景物。' },
-  '然後知吾嚮之未始遊，遊於是乎始': { stage:4, reason:'純粹的思想領悟與價值重構，無景物、無畫面。' },
-  '引觴滿酌，頹然就醉，不知日之入': { stage:2, reason:'「頹然」「不知」既是行動描寫，也是精神狀態，情景交融。' },
-  '蒼然暮色，自遠而至，至無所見，而猶不欲歸': { stage:2, reason:'暮色降臨（景）與「猶不欲歸」的留戀（情）融合，情景相生。' }
+  '凡數州之土壤，皆在衽席之下': { stage:1, reason:'寫居高臨下的視野，暗含「超越眾山」的開闊感——景與情已交融。' },
+  '縈青繚白，外與天際，四望如一': { stage:1, reason:'青山白水遠接天際，開闊感中隱含舒展之情，屬情景交融。' },
+  '悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮': { stage:1, reason:'悠悠洋洋既是寫天地浩瀚（景），也是寫精神自由（情），情景完全融合。' },
+  '心凝形釋，與萬化冥合': { stage:2, reason:'純粹的精神體驗描述，完全脫離具體景物，屬於純抒情。' },
+  '然後知吾嚮之未始遊，遊於是乎始': { stage:2, reason:'純粹的思想領悟與價值重構，無景物、無畫面，屬於純抒情。' },
+  '引觴滿酌，頹然就醉，不知日之入': { stage:1, reason:'「頹然」「不知」既是行動描寫，也是精神狀態，情景交融。' },
+  '蒼然暮色，自遠而至，至無所見，而猶不欲歸': { stage:1, reason:'暮色降臨（景）與「猶不欲歸」的留戀（情）融合，情景相生。' }
 };
 
 document.getElementById('pickerSubmit').addEventListener('click', function() {
@@ -800,9 +776,7 @@ document.getElementById('lyricSubmit').addEventListener('click', function() {
   // Simple analysis guidance
   const hints = [
     '純寫景——如果這句歌詞純粹描寫景物，沒有任何情感詞語，就落在這個位置。',
-    '景中隱情——如果歌詞表面寫景，但用詞隱含情感傾向（如「淒」「冷」「暗」等），就落在這個位置。',
     '情景交融——如果歌詞中景與情無法分割，景物本身就是情感的載體，就落在這個位置。',
-    '情借景抒——如果歌詞以景物為主要載體來抒發強烈情感，情為主、景為輔，就落在這個位置。',
     '純抒情——如果歌詞直接抒發感受，沒有具體的景物描寫，就落在這個位置。'
   ];
 
