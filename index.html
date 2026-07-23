@@ -186,6 +186,16 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 .info-panel .extra-box p { font-size: 13px; color: #c0d8b0; line-height: 1.6; }
 .info-panel .extra-box strong { color: #7BB36D; }
 
+/* Guess mode box */
+.guess-box {
+  padding: 22px;
+  text-align: center;
+  background: rgba(0,0,0,0.18);
+  border-radius: 10px;
+  border: 1px dashed rgba(255,255,255,0.25);
+}
+.guess-box .btn { margin-top: 6px; }
+
 /* Teacher note */
 .teacher-note {
   margin-top: 14px;
@@ -244,7 +254,10 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   border-top: 1px solid rgba(255,255,255,0.15);
   margin-top: 2px;
   padding-top: 2px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
+.drop-segment .dropped-item:hover { background: rgba(0,0,0,0.25); }
 .dropzone-labels { display: flex; margin-bottom: 4px; }
 .dropzone-labels span { flex:1; text-align:center; font-size:11px; color:#777; }
 
@@ -382,7 +395,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 
     <div class="teacher-note">
       <strong>🧑‍🏫 課堂建議：</strong>
-      先讓學生將滑桿拖到中間（情景交融），<strong>猜猜看哪一句原文最適合放在這裏</strong>，再公布答案。之後可請學生自行找一句課文句子，用下方的「句子歸類」分頁判斷位置。進階延伸：找一句粵語歌詞套入光譜比較。
+      每個階段<strong>預設隱藏例句</strong>——先讓學生口頭猜測哪句原文最適合，再按「揭曉例句」公布，製造懸念。之後可請學生用「句子歸類」分頁判斷其他句子（放錯可點擊撤回；⚖️ 標記屬可討論題）。進階延伸：找一句粵語歌詞套入光譜比較。
     </div>
   </div>
 </div>
@@ -393,7 +406,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 <div class="tab-content" id="tab2">
   <div class="card">
     <h2 style="font-size:17px;margin-bottom:6px;">句子歸類活動</h2>
-    <p style="font-size:13px;color:#888;margin-bottom:12px;">先點選左邊句子，再點擊光譜上的階段放置。</p>
+    <p style="font-size:13px;color:#888;margin-bottom:12px;">先點選左邊句子，再點擊光譜上的階段放置；放錯可點擊已放置的句子撤回。<span style="color:#E8923E;">⚖️ 標記的句子屬可討論題，兩個答案均可，關鍵在理由。</span></p>
 
     <div class="game-area">
       <div class="sentence-pool">
@@ -540,7 +553,8 @@ const sentences = [
   { id:0, text:'自余為僇人，居是州，恆惴慄',       answer:2 },
   { id:1, text:'施施而行，漫漫而遊',               answer:2 },
   { id:2, text:'過湘江，緣染溪，斫榛莽，焚茅茷',   answer:0 },
-  { id:3, text:'凡數州之土壤，皆在衽席之下',         answer:1 },
+  { id:3, text:'凡數州之土壤，皆在衽席之下',         answer:1, debatable:true, altAnswer:0,
+    debateNote:'可討論句：判「純寫景」者著重其客觀俯瞰的視覺記述；判「情景交融」者著重「皆在衽席之下」暗含的超越眾山之感。兩者皆可，視乎論證是否充分。' },
   { id:4, text:'引觴滿酌，頹然就醉，不知日之入',     answer:1 },
   { id:5, text:'蒼然暮色，自遠而至，至無所見，而猶不欲歸', answer:1 },
   { id:6, text:'然後知吾嚮之未始遊，遊於是乎始',     answer:2 },
@@ -562,6 +576,8 @@ function getStageFromPos(val) {
   return 2;
 }
 
+let revealedStages = {}; // 記錄已揭曉的階段（本次操作期間）
+
 function updateSlider(val) {
   const stageIdx = getStageFromPos(val);
   const d = stageData[stageIdx];
@@ -576,15 +592,28 @@ function updateSlider(val) {
   document.getElementById('labelLeft').style.color = val < 33 ? '#7BB36D' : 'rgba(255,255,255,0.5)';
   document.getElementById('labelRight').style.color = val >= 66 ? '#E8923E' : 'rgba(255,255,255,0.5)';
 
-  // Panel
+  // Panel —— 猜測模式：未揭曉前只顯示階段名稱
   let html = `<div class="stage-badge" style="background:${d.color}">${d.name}</div>`;
-  html += `<div class="quote-text">「${d.quote}」</div>`;
-  html += `<div class="analysis-text">${d.analysis}</div>`;
-  if (d.extra) {
-    html += `<div class="extra-box"><p><strong>${d.extra.title}</strong><br>${d.extra.text}</p></div>`;
+  if (!revealedStages[stageIdx]) {
+    html += `<div class="guess-box">
+      <p style="font-size:14px;color:#d0d8e0;margin-bottom:10px;">🤔 猜一猜：哪一句原文最適合放在「${d.name}」這個位置？</p>
+      <button class="btn btn-show" onclick="revealStage()">🔮 揭曉例句</button>
+    </div>`;
+  } else {
+    html += `<div class="quote-text">「${d.quote}」</div>`;
+    html += `<div class="analysis-text">${d.analysis}</div>`;
+    if (d.extra) {
+      html += `<div class="extra-box"><p><strong>${d.extra.title}</strong><br>${d.extra.text}</p></div>`;
+    }
   }
   infoPanel.style.borderLeftColor = d.color;
   infoPanel.innerHTML = html;
+}
+
+function revealStage() {
+  const stageIdx = getStageFromPos(parseInt(slider.value));
+  revealedStages[stageIdx] = true;
+  updateSlider(parseInt(slider.value));
 }
 
 slider.addEventListener('input', function() {
@@ -630,7 +659,7 @@ function renderPool() {
     if (placements[s.id] !== undefined) div.classList.add('dropped');
     if (selectedId === s.id) div.classList.add('selected');
     div.dataset.sid = s.id;
-    div.textContent = `「${s.text}」`;
+    div.innerHTML = `「${s.text}」` + (s.debatable ? ` <span style="font-size:11px;color:#E8923E;">⚖️可討論</span>` : '');
     div.addEventListener('click', function() {
       if (placements[s.id] !== undefined) return;
       selectedId = (selectedId === s.id) ? null : s.id;
@@ -650,7 +679,15 @@ function renderDropzones() {
         if (s) {
           const span = document.createElement('div');
           span.className = 'dropped-item';
-          span.textContent = `「${s.text}」`;
+          span.textContent = `「${s.text}」 ✕`;
+          span.title = '點擊撤回此句';
+          span.addEventListener('click', function(e) {
+            e.stopPropagation();
+            delete placements[s.id];
+            renderPool();
+            renderDropzones();
+            resultArea.classList.remove('show','correct','incorrect');
+          });
           seg.appendChild(span);
         }
       }
@@ -688,12 +725,21 @@ function checkAnswers() {
   sentences.forEach(s => {
     const userAns = placements[s.id];
     const isPlaced = userAns !== undefined;
-    const isCorrect = isPlaced && userAns === s.answer;
+    let isCorrect, correctLabel;
+    if (s.debatable) {
+      isCorrect = isPlaced && (userAns === s.answer || userAns === s.altAnswer);
+      correctLabel = `${stageNames[s.answer]} 或 ${stageNames[s.altAnswer]}（可討論）`;
+    } else {
+      isCorrect = isPlaced && userAns === s.answer;
+      correctLabel = stageNames[s.answer];
+    }
     if (isCorrect) correct++;
     const status = isCorrect ? '✓ 正確' : (isPlaced ? '✗ 錯誤' : '— 未放置');
     const cls = isCorrect ? 'ri-correct' : (isPlaced ? 'ri-incorrect' : '');
     html += `<div class="result-item"><span class="${cls}">${status}</span> 「${s.text}」<br>
-      <span style="font-size:12px;color:#888;">正確：${stageNames[s.answer]} | 你的：${isPlaced ? stageNames[userAns] : '—'}</span></div>`;
+      <span style="font-size:12px;color:#888;">參考：${correctLabel} | 你的：${isPlaced ? stageNames[userAns] : '—'}</span>
+      ${s.debatable && isCorrect ? `<br><span style="font-size:12px;color:#E8923E;">⚖️ ${s.debateNote}</span>` : ''}
+    </div>`;
   });
   const allCorrect = correct === sentences.length;
   html += `<div style="margin-top:8px;font-weight:bold;font-size:14px;">得分：${correct} / ${sentences.length}</div>`;
@@ -724,7 +770,7 @@ const answerKey = {
   '自余為僇人，居是州，恆惴慄': { stage:2, reason:'直接交代貶謫背景與內心憂懼，無景物描寫，屬於直接抒情。' },
   '施施而行，漫漫而遊': { stage:2, reason:'寫心態（慢行漫遊），是作者主觀心理狀態的記述，無具體景物。' },
   '過湘江，緣染溪，斫榛莽，焚茅茷': { stage:0, reason:'一連串動作記述，客觀記錄登山過程，近乎純粹的敘事寫景。' },
-  '凡數州之土壤，皆在衽席之下': { stage:1, reason:'寫居高臨下的視野，暗含「超越眾山」的開闊感——景與情已交融。' },
+  '凡數州之土壤，皆在衽席之下': { stage:1, altStage:0, debatable:true, reason:'⚖️ 可討論句：判「情景交融」者著重「皆在衽席之下」暗含超越眾山之感；判「純寫景」者著重其客觀俯瞰的視覺記述。兩者皆可，視乎論證是否充分。' },
   '縈青繚白，外與天際，四望如一': { stage:1, reason:'青山白水遠接天際，開闊感中隱含舒展之情，屬情景交融。' },
   '悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮': { stage:1, reason:'悠悠洋洋既是寫天地浩瀚（景），也是寫精神自由（情），情景完全融合。' },
   '心凝形釋，與萬化冥合': { stage:2, reason:'純粹的精神體驗描述，完全脫離具體景物，屬於純抒情。' },
@@ -749,14 +795,19 @@ document.getElementById('pickerSubmit').addEventListener('click', function() {
     return;
   }
 
-  const isCorrect = parseInt(userStage) === key.stage;
+  const isCorrect = key.debatable
+    ? (parseInt(userStage) === key.stage || parseInt(userStage) === key.altStage)
+    : (parseInt(userStage) === key.stage);
+  const refAnswer = key.debatable
+    ? `${stageNames[key.stage]} 或 ${stageNames[key.altStage]}（可討論）`
+    : stageNames[key.stage];
   result.innerHTML = `
     <div style="font-weight:bold;margin-bottom:6px;${isCorrect ? 'color:#7BB36D' : 'color:#C9443E'}">
       ${isCorrect ? '✓ 判斷正確！' : '✗ 判斷有出入'}
     </div>
     <div style="font-size:13px;color:#b0b8c8;">
       <strong>你的判斷：</strong>${stageNames[parseInt(userStage)]}<br>
-      <strong>參考答案：</strong>${stageNames[key.stage]}<br>
+      <strong>參考答案：</strong>${refAnswer}<br>
       <strong>理由：</strong>${key.reason}
     </div>
   `;
