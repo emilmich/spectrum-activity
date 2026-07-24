@@ -358,6 +358,61 @@ header p { color: #9a958a; font-size: 14px; margin-top: 4px; letter-spacing: 1px
 .lyric-input-area input { flex: 1; min-width: 200px; padding: 8px 12px; border-radius: 8px; border: 1px solid #d8cfb8; background: #fffdf7; color: #3d4443; font-size: 14px; font-family: inherit; }
 .lyric-input-area select { padding: 8px 12px; border-radius: 8px; border: 1px solid #d8cfb8; background: #fffdf7; color: #3d4443; font-size: 14px; font-family: inherit; }
 
+/* ════════════════════════════════════════════ */
+/* TAB 4: CREATIVE WRITING + AI GRADING */
+/* ════════════════════════════════════════════ */
+.step-label {
+  font-size: 14px; font-weight: bold; color: #5e8f52;
+  margin: 16px 0 8px;
+}
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  padding: 6px 14px; border-radius: 20px; border: 1px solid #d8cfb8;
+  background: #fffdf7; color: #6a6f6d; cursor: pointer;
+  font-size: 13px; font-family: inherit; transition: all 0.2s;
+  user-select: none;
+}
+.chip:hover { border-color: #8FBC85; color: #3d4443; }
+.chip.selected { background: #7BB36D; border-color: #7BB36D; color: #fff; font-weight: bold; }
+.chip.locked { opacity: 0.5; cursor: default; pointer-events: none; }
+
+.writing-area {
+  width: 100%; min-height: 90px; padding: 12px 14px;
+  border-radius: 10px; border: 1px solid #d8cfb8;
+  background: #fffdf7; color: #3d4443;
+  font-size: 15px; line-height: 1.7; font-family: inherit;
+  resize: vertical;
+}
+.writing-area:focus { outline: none; border-color: #8FBC85; }
+.char-count { text-align: right; font-size: 12px; color: #9a958a; margin-top: 4px; }
+
+.attempt-info { font-size: 12px; color: #9a958a; margin-top: 8px; text-align: center; }
+
+.feedback-thread { margin-top: 18px; }
+.thread-item { margin-bottom: 14px; }
+.thread-user {
+  background: #eef4fb; border: 1px solid #c9d9ec; border-radius: 10px;
+  padding: 10px 14px; font-size: 14px; color: #3d4f66; line-height: 1.7;
+}
+.thread-user .round-label { font-size: 11px; font-weight: bold; color: #5B83AC; display: block; margin-bottom: 4px; }
+.thread-teacher {
+  background: #f4f8ee; border: 1px solid #cdddbd; border-radius: 10px;
+  padding: 12px 16px; font-size: 14px; color: #4a5548; line-height: 1.8;
+  margin-top: 8px;
+}
+.thread-teacher .round-label { font-size: 11px; font-weight: bold; color: #5e8f52; display: block; margin-bottom: 6px; }
+.thread-teacher strong { color: #3d4443; }
+
+.loading-dots { text-align: center; color: #9a958a; font-size: 14px; padding: 16px; }
+.error-box {
+  background: #f9ecea; border: 1px solid #CE7368; border-radius: 8px;
+  padding: 10px 14px; font-size: 13px; color: #b8544c; margin-top: 10px;
+}
+.setup-notice {
+  background: #faf3e2; border: 1px dashed #e0c890; border-radius: 8px;
+  padding: 12px 16px; font-size: 13px; color: #8a7040; line-height: 1.6; margin-top: 12px;
+}
+
 /* ── Responsive ── */
 @media (max-width: 700px) {
   .game-area { flex-direction: column; }
@@ -379,6 +434,7 @@ header p { color: #9a958a; font-size: 14px; margin-top: 4px; letter-spacing: 1px
   <button class="tab-btn active" data-tab="tab1">一、光譜探索</button>
   <button class="tab-btn" data-tab="tab2">二、句子歸類</button>
   <button class="tab-btn" data-tab="tab3">三、深度分析 &amp; 延伸</button>
+  <button class="tab-btn" data-tab="tab4">四、創作評改</button>
 </div>
 
 <!-- ════════════════════════════════════════════ -->
@@ -542,6 +598,39 @@ header p { color: #9a958a; font-size: 14px; margin-top: 4px; letter-spacing: 1px
         <li>豪放詞（蘇軾）與婉約詞（李清照）的指紋有何不同？這與他們的風格有何關係？</li>
       </ol>
     </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB 4: CREATIVE WRITING + AI GRADING -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab4">
+  <div class="card">
+    <h2 style="font-size:17px;margin-bottom:4px;">✍️ 創作評改：試寫情景交融</h2>
+    <p style="font-size:13px;color:#9a958a;margin-bottom:6px;">
+      運用合適的景物抒發情感，寫一句或一段文字。AI 老師會即時評改，指出可取之處與改善方向；你可以按建議修改後再提交，反覆琢磨。
+    </p>
+
+    <div class="step-label">① 選擇情感主題（必選）</div>
+    <div class="chip-row" id="themeChips"></div>
+
+    <div class="step-label">② 選擇景物提示（可選，最多 3 個）</div>
+    <div class="chip-row" id="sceneChips"></div>
+
+    <div class="step-label">③ 寫下你的句子或片段</div>
+    <textarea class="writing-area" id="writingInput" maxlength="150"
+      placeholder="例：細雨打在窗外的梧桐上，一滴一滴，彷彿滴進了我的心裏……（150 字內）"></textarea>
+    <div class="char-count"><span id="charNow">0</span> / 150</div>
+
+    <div class="btn-group" style="justify-content:flex-start;">
+      <button class="btn btn-check" id="submitWriting">📤 提交評改</button>
+      <button class="btn btn-show" id="copyResult" style="display:none;">📋 複製成果</button>
+      <button class="btn btn-reset" id="newAttempt" style="display:none;">↺ 重新創作</button>
+    </div>
+    <div class="attempt-info" id="attemptInfo"></div>
+    <div id="setupNotice"></div>
+
+    <div class="feedback-thread" id="feedbackThread"></div>
   </div>
 </div>
 
@@ -1087,6 +1176,217 @@ function renderFingerprint() {
   container.innerHTML = html;
 }
 renderFingerprint();
+
+// ═══════════════════════════════════════════════
+// TAB 4: CREATIVE WRITING + AI GRADING
+// ═══════════════════════════════════════════════
+// ★ 教師設定：把 Cloudflare Worker 網址貼在引號內（見「設定指引.md」）
+const WORKER_URL = '';
+
+const THEMES = ['思念', '孤獨', '喜悅', '傷時感懷', '離愁', '讚美自然', '自抒'];
+const SCENES = ['明月', '梧桐', '細雨', '落花', '孤舟', '斜陽', '長亭', '流水', '飛雁', '枯藤', '江楓', '漁火'];
+const MAX_ATTEMPTS = 20;
+const MAX_LEN = 150;
+
+let selectedTheme = null;
+let selectedScenes = [];
+let conversation = [];   // {role:'user'|'assistant', content}
+let draftCount = 0;      // 今次創作的稿數
+let isSubmitting = false;
+
+const themeChipsEl = document.getElementById('themeChips');
+const sceneChipsEl = document.getElementById('sceneChips');
+const writingInput = document.getElementById('writingInput');
+const charNow = document.getElementById('charNow');
+const submitBtn = document.getElementById('submitWriting');
+const copyBtn = document.getElementById('copyResult');
+const newAttemptBtn = document.getElementById('newAttempt');
+const attemptInfo = document.getElementById('attemptInfo');
+const feedbackThread = document.getElementById('feedbackThread');
+const setupNotice = document.getElementById('setupNotice');
+
+// ── 嘗試次數（每日上限，localStorage）──
+function todayKey() {
+  const d = new Date();
+  return `spectrum_attempts_${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+function getAttempts() { return parseInt(localStorage.getItem(todayKey()) || '0'); }
+function incAttempts() { localStorage.setItem(todayKey(), String(getAttempts() + 1)); }
+function updateAttemptInfo() {
+  const left = Math.max(0, MAX_ATTEMPTS - getAttempts());
+  attemptInfo.textContent = `今日餘下 ${left} 次提交機會`;
+}
+
+// ── Chips 建構 ──
+function buildChips() {
+  themeChipsEl.innerHTML = '';
+  THEMES.forEach(t => {
+    const c = document.createElement('button');
+    c.className = 'chip' + (selectedTheme === t ? ' selected' : '') + (draftCount > 0 ? ' locked' : '');
+    c.textContent = t;
+    c.addEventListener('click', () => {
+      if (draftCount > 0) return;
+      selectedTheme = (selectedTheme === t) ? null : t;
+      buildChips();
+    });
+    themeChipsEl.appendChild(c);
+  });
+  sceneChipsEl.innerHTML = '';
+  SCENES.forEach(s => {
+    const c = document.createElement('button');
+    const on = selectedScenes.includes(s);
+    c.className = 'chip' + (on ? ' selected' : '') + (draftCount > 0 ? ' locked' : '');
+    c.textContent = s;
+    c.addEventListener('click', () => {
+      if (draftCount > 0) return;
+      if (on) { selectedScenes = selectedScenes.filter(x => x !== s); }
+      else if (selectedScenes.length < 3) { selectedScenes.push(s); }
+      buildChips();
+    });
+    sceneChipsEl.appendChild(c);
+  });
+}
+
+// ── 字數統計 ──
+writingInput.addEventListener('input', () => {
+  charNow.textContent = writingInput.value.length;
+});
+
+// ── 評語格式化（【標題】→ 粗體，換行 → <br>，防 XSS）──
+function formatFeedback(text) {
+  const esc = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return esc
+    .replace(/【([^】]+)】/g, '<strong>【$1】</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+// ── 渲染對話串 ──
+function renderThread() {
+  let html = '';
+  let draftNo = 0;
+  conversation.forEach(m => {
+    if (m.role === 'user') {
+      draftNo++;
+      html += `<div class="thread-item"><div class="thread-user">
+        <span class="round-label">✏️ 第 ${draftNo} 稿</span>${m.display || m.content}</div>`;
+    } else {
+      html += `<div class="thread-teacher">
+        <span class="round-label">🧑‍🏫 老師評語</span>${formatFeedback(m.content)}</div></div>`;
+    }
+  });
+  feedbackThread.innerHTML = html;
+  feedbackThread.scrollTop = feedbackThread.scrollHeight;
+}
+
+// ── 提交評改 ──
+submitBtn.addEventListener('click', async () => {
+  if (isSubmitting) return;
+  const text = writingInput.value.trim();
+
+  if (!selectedTheme) { alert('請先選擇情感主題。'); return; }
+  if (!text) { alert('請先寫下你的句子或片段。'); return; }
+  if (getAttempts() >= MAX_ATTEMPTS) { alert('今日提交次數已用完，明天再試。'); return; }
+  if (!WORKER_URL) {
+    setupNotice.innerHTML = `<div class="setup-notice">⚙️ 評改服務尚未設定：請教師按照倉庫內「設定指引.md」完成 Cloudflare Worker 部署，並把網址填入程式碼中的 <code>WORKER_URL</code>。</div>`;
+    return;
+  }
+
+  isSubmitting = true;
+  submitBtn.disabled = true;
+  submitBtn.textContent = '⏳ 評改中……';
+  const loadingEl = document.createElement('div');
+  loadingEl.className = 'loading-dots';
+  loadingEl.id = 'loadingDots';
+  loadingEl.textContent = 'AI 老師正在細閱你的作品……';
+  feedbackThread.appendChild(loadingEl);
+
+  // 組織訊息
+  let userMsg;
+  if (draftCount === 0) {
+    const scenePart = selectedScenes.length ? `，選用的景物：${selectedScenes.join('、')}` : '（自由選景）';
+    userMsg = `情感主題：${selectedTheme}${scenePart}\n\n我的作品：\n${text}`;
+  } else {
+    userMsg = `按你的建議修改後的第 ${draftCount + 1} 稿：\n${text}`;
+  }
+  conversation.push({ role: 'user', content: userMsg, display: text.replace(/</g,'&lt;') });
+
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 45000);
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: conversation.map(m => ({ role: m.role, content: m.content }))
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'request failed');
+
+    conversation.push({ role: 'assistant', content: data.feedback });
+    incAttempts();
+    draftCount++;
+    writingInput.value = '';
+    charNow.textContent = '0';
+    writingInput.placeholder = '按老師的建議修改你的作品，然後再次提交……';
+    copyBtn.style.display = '';
+    newAttemptBtn.style.display = '';
+    buildChips(); // 鎖定主題與景物
+  } catch (e) {
+    conversation.pop(); // 收回未獲回應的一稿
+    const err = document.createElement('div');
+    err.className = 'error-box';
+    err.textContent = '⚠️ 未能取得評語（可能網絡不穩或服務繁忙），請稍後再按「提交評改」重試。';
+    feedbackThread.appendChild(err);
+  } finally {
+    document.getElementById('loadingDots')?.remove();
+    isSubmitting = false;
+    submitBtn.disabled = false;
+    submitBtn.textContent = draftCount === 0 ? '📤 提交評改' : '📤 提交修改稿';
+    updateAttemptInfo();
+    renderThread();
+  }
+});
+
+// ── 複製成果 ──
+copyBtn.addEventListener('click', () => {
+  let out = `【創作評改成果】\n情感主題：${selectedTheme}\n選用景物：${selectedScenes.length ? selectedScenes.join('、') : '（自由選景）'}\n`;
+  let draftNo = 0;
+  conversation.forEach(m => {
+    if (m.role === 'user') {
+      draftNo++;
+      out += `\n── 第 ${draftNo} 稿 ──\n${(m.display || m.content).replace(/&lt;/g,'<')}\n`;
+    } else {
+      out += `\n【老師評語】\n${m.content}\n`;
+    }
+  });
+  navigator.clipboard.writeText(out).then(() => {
+    copyBtn.textContent = '✅ 已複製！';
+    setTimeout(() => { copyBtn.textContent = '📋 複製成果'; }, 2000);
+  });
+});
+
+// ── 重新創作 ──
+newAttemptBtn.addEventListener('click', () => {
+  conversation = [];
+  draftCount = 0;
+  selectedTheme = null;
+  selectedScenes = [];
+  writingInput.value = '';
+  writingInput.placeholder = '例：細雨打在窗外的梧桐上，一滴一滴，彷彿滴進了我的心裏……（150 字內）';
+  charNow.textContent = '0';
+  feedbackThread.innerHTML = '';
+  copyBtn.style.display = 'none';
+  newAttemptBtn.style.display = 'none';
+  submitBtn.textContent = '📤 提交評改';
+  buildChips();
+});
+
+// Init Tab 4
+buildChips();
+updateAttemptInfo();
 
 // ═══════════════════════════════════════════════
 // TAB SWITCHING
