@@ -5,7 +5,24 @@
 // ═══════════════════════════════════════════════════════════
 
 const ALLOWED_ORIGIN = 'https://emilmich.github.io';
-const DEFAULT_MODEL = 'gemini-2.5-flash';
+
+// ── 自動偵測可用模型（Google 經常更換型號，避免硬編碼）──
+let cachedModel = null;
+async function resolveModel(apiKey) {
+  if (cachedModel) return cachedModel;
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    const data = await res.json();
+    const names = (data.models || [])
+      .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+      .map(m => m.name.replace(/^models\//, ''))
+      .filter(n => !/image|tts|embedding|aqa|imagen/i.test(n));
+    cachedModel = names.find(n => /flash/i.test(n)) || names[0] || 'gemini-2.5-flash';
+  } catch (e) {
+    cachedModel = 'gemini-2.5-flash';
+  }
+  return cachedModel;
+}
 
 // ── 評改老師的系統提示詞 ──
 const SYSTEM_PROMPT = `你是香港中學文憑試（DSE）中文科的老師，專門評改學生以「情景交融」手法創作的句子或片段。學生正學習柳宗元《始得西山宴遊記》、蘇軾《念奴嬌·赤壁懷古》、李清照《聲聲慢·秋情》、辛棄疾《青玉案·元夕》四篇範文。
@@ -73,7 +90,8 @@ export default {
           keySet: k.length > 0,
           keyLength: k.length,
           visibleNames: Object.keys(env),
-          targetName: 'GEMINI_API_KEY'
+          targetName: 'GEMINI_API_KEY',
+          resolvedModel: k ? await resolveModel(k) : '(無金鑰)'
         });
       }
 
@@ -94,7 +112,7 @@ export default {
         parts: [{ text: m.content }]
       }));
 
-      const model = env.GEMINI_MODEL || DEFAULT_MODEL;
+      const model = env.GEMINI_MODEL || await resolveModel(env.GEMINI_API_KEY);
       const apiRes = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`,
         {
