@@ -196,6 +196,24 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 }
 .guess-box .btn { margin-top: 6px; }
 
+/* Text selector */
+.text-selector { display: flex; gap: 8px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+.text-btn {
+  padding: 8px 16px; border-radius: 20px; border: 1px solid #2a4a7a;
+  background: #0f3460; color: #b0b8c8; cursor: pointer; font-size: 13px;
+  font-family: inherit; transition: all 0.2s;
+}
+.text-btn:hover { border-color: #4A8BC2; color: #fff; }
+.text-btn.active { background: #7BB36D; border-color: #7BB36D; color: #fff; font-weight: bold; }
+
+/* Fingerprint chart */
+.fp-row { margin-bottom: 14px; }
+.fp-label { font-size: 14px; margin-bottom: 4px; color: #e0e8f0; }
+.fp-genre { font-size: 11px; color: #888; margin-left: 8px; }
+.fp-bar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; background: #0f3460; }
+.fp-seg { display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; font-weight: bold; min-width: 0; }
+.fp-note { font-size: 12px; color: #888; margin-top: 3px; }
+
 /* Teacher note */
 .teacher-note {
   margin-top: 14px;
@@ -365,6 +383,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 <!-- ════════════════════════════════════════════ -->
 <div class="tab-content active" id="tab1">
   <div class="card">
+    <div class="text-selector" id="textSelector1"></div>
     <div class="spectrum-title">🎯 拖曳滑桿探索光譜</div>
     <p style="text-align:center;font-size:13px;color:#888;margin-bottom:14px;">
       愈往左：寫景愈多、抒情愈淡 &nbsp;•&nbsp; 愈往右：寫景愈少、抒情愈濃
@@ -406,6 +425,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 <div class="tab-content" id="tab2">
   <div class="card">
     <h2 style="font-size:17px;margin-bottom:6px;">句子歸類活動</h2>
+    <div class="text-selector" id="textSelector2"></div>
     <p style="font-size:13px;color:#888;margin-bottom:12px;">先點選左邊句子，再點擊光譜上的階段放置；放錯可點擊已放置的句子撤回。<span style="color:#E8923E;">⚖️ 標記的句子屬可討論題，兩個答案均可，關鍵在理由。</span></p>
 
     <div class="game-area">
@@ -475,19 +495,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
     <p style="font-size:13px;color:#888;margin-bottom:14px;">從課文中揀一句，判斷它在光譜上的位置，並說明理由。</p>
     <div class="picker-area">
       <div class="picker-row">
-        <select id="sentenceSelect">
-          <option value="">—— 請選擇一句課文 ——</option>
-          <option value="自余為僇人，居是州，恆惴慄">自余為僇人，居是州，恆惴慄</option>
-          <option value="施施而行，漫漫而遊">施施而行，漫漫而遊</option>
-          <option value="過湘江，緣染溪，斫榛莽，焚茅茷">過湘江，緣染溪，斫榛莽，焚茅茷</option>
-          <option value="凡數州之土壤，皆在衽席之下">凡數州之土壤，皆在衽席之下</option>
-          <option value="縈青繚白，外與天際，四望如一">縈青繚白，外與天際，四望如一</option>
-          <option value="悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮">悠悠乎與灝氣俱，洋洋乎與造物者遊</option>
-          <option value="心凝形釋，與萬化冥合">心凝形釋，與萬化冥合</option>
-          <option value="然後知吾嚮之未始遊，遊於是乎始">然後知吾嚮之未始遊，遊於是乎始</option>
-          <option value="引觴滿酌，頹然就醉，不知日之入">引觴滿酌，頹然就醉，不知日之入</option>
-          <option value="蒼然暮色，自遠而至，至無所見，而猶不欲歸">蒼然暮色，自遠而至，至無所見，而猶不欲歸</option>
-        </select>
+        <select id="sentenceSelect"></select>
         <select id="stageSelect">
           <option value="">—— 判斷光譜位置 ——</option>
           <option value="0">純寫景</option>
@@ -517,6 +525,21 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
     </div>
     <div class="picker-result" id="lyricResult" style="margin-top:10px;"></div>
   </div>
+
+  <!-- Fingerprint comparison -->
+  <div class="card">
+    <h2 style="font-size:17px;margin-bottom:4px;">📊 光譜指紋：四篇對比</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:14px;">每篇作品的句子在光譜上的分佈，如同指紋般獨一無二——風格差異由此可見。</p>
+    <div id="fingerprintArea"></div>
+    <div style="margin-top:16px;padding:14px;background:rgba(15,52,96,0.5);border-radius:8px;border:1px solid #2a4a7a;">
+      <h3 style="font-size:14px;margin-bottom:8px;color:#7BB36D;">💬 討論問題</h3>
+      <ol style="font-size:13px;line-height:1.8;color:#b0b8c8;padding-left:20px;">
+        <li>為甚麼詞（尤其婉約詞）的分佈偏向中間及右方，而散文能橫跨全譜？</li>
+        <li>《聲聲慢》沒有純寫景、《青玉案》沒有純抒情——這兩個「空白」各自說明了甚麼？</li>
+        <li>豪放詞（蘇軾）與婉約詞（李清照）的指紋有何不同？這與他們的風格有何關係？</li>
+      </ol>
+    </div>
+  </div>
 </div>
 
 </div><!-- /container -->
@@ -525,43 +548,195 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 // ═══════════════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════════════
-const stageData = [
-  {
-    name: '純寫景', color: '#2D5B8A',
-    quote: '其高下之勢，岈然窪然，若垤若穴，尺寸千里，攢蹙累積，莫得遯隱',
-    analysis: '純粹描寫從西山俯瞰所見的地形地貌，以「岈然」「窪然」「若垤」「若穴」等比喻客觀呈現景物，未有直接表達情感或評價。整句功能是「呈現畫面」，而非「抒發感受」。這是最接近「純寫景」一端的典例。',
-    extra: null
-  },
-  {
-    name: '情景交融 ★', color: '#7BB36D',
-    quote: '悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮',
-    analysis: '情景交融的極致。「悠悠乎」「洋洋乎」既是寫天地之浩瀚（景），同時也是寫作者精神之自由（情）。景不是客觀的景，情也不是抽象的情——二者已融為一體，無法區分何者為景、何者為情。這就是「心凝形釋，與萬化冥合」的具體呈現。',
-    extra: {
-      title: '🎵 跨文本對讀：Beyond〈海闊天空〉',
-      text: '「天空海闊你與我，可會變（誰沒在變）」——「天空海闊」是景（壯闊的空間意象），「你與我可會變」是情（對承諾的追問）。與「悠悠乎與灝氣俱」一樣，景與情在此交融，無法截然分割。'
+const TEXTS = {
+  liu: {
+    name: '始得西山宴遊記', author: '柳宗元', genre: '散文',
+    fpNote: '橫跨全譜——由景入情，層層遞進（散文特色）',
+    stageData: [
+      {
+        name: '純寫景', color: '#2D5B8A',
+        quote: '其高下之勢，岈然窪然，若垤若穴，尺寸千里，攢蹙累積，莫得遯隱',
+        analysis: '純粹描寫從西山俯瞰所見的地形地貌，以「岈然」「窪然」「若垤」「若穴」等比喻客觀呈現景物，未有直接表達情感或評價。整句功能是「呈現畫面」，而非「抒發感受」。這是最接近「純寫景」一端的典例。',
+        extra: null
+      },
+      {
+        name: '情景交融 ★', color: '#7BB36D',
+        quote: '悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮',
+        analysis: '情景交融的極致。「悠悠乎」「洋洋乎」既是寫天地之浩瀚（景），同時也是寫作者精神之自由（情）。景不是客觀的景，情也不是抽象的情——二者已融為一體，無法區分何者為景、何者為情。這就是「心凝形釋，與萬化冥合」的具體呈現。',
+        extra: {
+          title: '🎵 跨文本對讀：Beyond〈海闊天空〉',
+          text: '「天空海闊你與我，可會變（誰沒在變）」——「天空海闊」是景（壯闊的空間意象），「你與我可會變」是情（對承諾的追問）。與「悠悠乎與灝氣俱」一樣，景與情在此交融，無法截然分割。'
+        }
+      },
+      {
+        name: '純抒情', color: '#C9443E',
+        quote: '心凝形釋，與萬化冥合。然後知吾嚮之未始遊，遊於是乎始',
+        analysis: '已脫離具體的景物描寫，直接抒發作者的精神體驗與哲學領悟。「心凝形釋」是內在感受的描述，「然後知……」是純粹的思想總結與價值重構。景物在這裏已經隱退，只留下情感與思想。這是最接近「純抒情」一端的典例。',
+        extra: null
+      }
+    ],
+    sentences: [
+      { id:0, text:'自余為僇人，居是州，恆惴慄',       answer:2 },
+      { id:1, text:'施施而行，漫漫而遊',               answer:2 },
+      { id:2, text:'過湘江，緣染溪，斫榛莽，焚茅茷',   answer:0 },
+      { id:3, text:'凡數州之土壤，皆在衽席之下',         answer:1, debatable:true, altAnswer:0,
+        debateNote:'可討論句：判「純寫景」者著重其客觀俯瞰的視覺記述；判「情景交融」者著重「皆在衽席之下」暗含的超越眾山之感。兩者皆可，視乎論證是否充分。' },
+      { id:4, text:'引觴滿酌，頹然就醉，不知日之入',     answer:1 },
+      { id:5, text:'蒼然暮色，自遠而至，至無所見，而猶不欲歸', answer:1 },
+      { id:6, text:'然後知吾嚮之未始遊，遊於是乎始',     answer:2 },
+      { id:7, text:'縈青繚白，外與天際，四望如一',       answer:1 }
+    ],
+    picker: {
+      '自余為僇人，居是州，恆惴慄': { stage:2, reason:'直接交代貶謫背景與內心憂懼，無景物描寫，屬於直接抒情。' },
+      '施施而行，漫漫而遊': { stage:2, reason:'寫心態（慢行漫遊），是作者主觀心理狀態的記述，無具體景物。' },
+      '過湘江，緣染溪，斫榛莽，焚茅茷': { stage:0, reason:'一連串動作記述，客觀記錄登山過程，近乎純粹的敘事寫景。' },
+      '凡數州之土壤，皆在衽席之下': { stage:1, altStage:0, debatable:true, reason:'⚖️ 可討論句：判「情景交融」者著重「皆在衽席之下」暗含超越眾山之感；判「純寫景」者著重其客觀俯瞰的視覺記述。兩者皆可，視乎論證是否充分。' },
+      '縈青繚白，外與天際，四望如一': { stage:1, reason:'青山白水遠接天際，開闊感中隱含舒展之情，屬情景交融。' },
+      '悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮': { stage:1, reason:'悠悠洋洋既是寫天地浩瀚（景），也是寫精神自由（情），情景完全融合。' },
+      '心凝形釋，與萬化冥合': { stage:2, reason:'純粹的精神體驗描述，完全脫離具體景物，屬於純抒情。' },
+      '然後知吾嚮之未始遊，遊於是乎始': { stage:2, reason:'純粹的思想領悟與價值重構，無景物、無畫面，屬於純抒情。' },
+      '引觴滿酌，頹然就醉，不知日之入': { stage:1, reason:'「頹然」「不知」既是行動描寫，也是精神狀態，情景交融。' },
+      '蒼然暮色，自遠而至，至無所見，而猶不欲歸': { stage:1, reason:'暮色降臨（景）與「猶不欲歸」的留戀（情）融合，情景相生。' }
     }
   },
-  {
-    name: '純抒情', color: '#C9443E',
-    quote: '心凝形釋，與萬化冥合。然後知吾嚮之未始遊，遊於是乎始',
-    analysis: '已脫離具體的景物描寫，直接抒發作者的精神體驗與哲學領悟。「心凝形釋」是內在感受的描述，「然後知……」是純粹的思想總結與價值重構。景物在這裏已經隱退，只留下情感與思想。這是最接近「純抒情」一端的典例。',
-    extra: null
-  }
-];
 
-const sentences = [
-  { id:0, text:'自余為僇人，居是州，恆惴慄',       answer:2 },
-  { id:1, text:'施施而行，漫漫而遊',               answer:2 },
-  { id:2, text:'過湘江，緣染溪，斫榛莽，焚茅茷',   answer:0 },
-  { id:3, text:'凡數州之土壤，皆在衽席之下',         answer:1, debatable:true, altAnswer:0,
-    debateNote:'可討論句：判「純寫景」者著重其客觀俯瞰的視覺記述；判「情景交融」者著重「皆在衽席之下」暗含的超越眾山之感。兩者皆可，視乎論證是否充分。' },
-  { id:4, text:'引觴滿酌，頹然就醉，不知日之入',     answer:1 },
-  { id:5, text:'蒼然暮色，自遠而至，至無所見，而猶不欲歸', answer:1 },
-  { id:6, text:'然後知吾嚮之未始遊，遊於是乎始',     answer:2 },
-  { id:7, text:'縈青繚白，外與天際，四望如一',       answer:1 }
-];
+  nian: {
+    name: '念奴嬌·赤壁懷古', author: '蘇軾', genre: '詞（豪放）',
+    fpNote: '壯景起、慨嘆收，分佈平均（豪放詞風）',
+    stageData: [
+      {
+        name: '純寫景', color: '#2D5B8A',
+        quote: '亂石穿空，驚濤拍岸，捲起千堆雪',
+        analysis: '集中筆墨刻畫赤壁的險峻與江濤的壯觀：亂石、驚濤、捲雪，全是視覺與動態的呈現。不過「驚」字已暗寓情感震盪——這句其實站在純寫景與情景交融的邊界上，正好用作討論起點。',
+        extra: null
+      },
+      {
+        name: '情景交融 ★', color: '#7BB36D',
+        quote: '大江東去，浪淘盡、千古風流人物',
+        analysis: '開篇即交融典範。「大江東去」是眼前實景，「浪淘盡、千古風流人物」卻把江水化為歷史長河——景中早已注入對興亡的感慨，分不清是寫江還是寫歷史。豪放詞的氣魄，正在於以壯景載豪情。',
+        extra: null
+      },
+      {
+        name: '純抒情', color: '#C9443E',
+        quote: '故國神遊，多情應笑我，早生華髮',
+        analysis: '從赤壁之景、周瑜之事收回自身：神遊、多情、華髮，全是內心的自我解嘲與身世之感，景物完全退場。這是詞中情感最直白的一筆。',
+        extra: null
+      }
+    ],
+    sentences: [
+      { id:0, text:'故壘西邊，人道是、三國周郎赤壁',   answer:0 },
+      { id:1, text:'亂石穿空，驚濤拍岸，捲起千堆雪',     answer:0, debatable:true, altAnswer:1,
+        debateNote:'可討論句：判「純寫景」者著重其全是視覺動態描寫；判「情景交融」者著重「驚」字暗寓的情感震盪。' },
+      { id:2, text:'大江東去，浪淘盡、千古風流人物',   answer:1 },
+      { id:3, text:'江山如畫，一時多少豪傑',           answer:1 },
+      { id:4, text:'遙想公瑾當年，小喬初嫁了，雄姿英發', answer:1 },
+      { id:5, text:'故國神遊，多情應笑我，早生華髮',   answer:2 },
+      { id:6, text:'人生如夢，一尊還酹江月',           answer:1 }
+    ],
+    picker: {
+      '故壘西邊，人道是、三國周郎赤壁': { stage:0, reason:'「人道是」是傳聞轉述，客觀交代地點，未投入情感。' },
+      '亂石穿空，驚濤拍岸，捲起千堆雪': { stage:0, altStage:1, debatable:true, reason:'⚖️ 可討論句：全是視覺動態的壯景描寫；惟「驚」字暗寓情感震盪，判情景交融亦可。' },
+      '大江東去，浪淘盡、千古風流人物': { stage:1, reason:'江水（景）化為歷史長河（情），開篇即情景交融。' },
+      '江山如畫，一時多少豪傑': { stage:1, reason:'上句「如畫」總結景，下句「多少豪傑」轉入情，一句之內由景入情。' },
+      '遙想公瑾當年，小喬初嫁了，雄姿英發': { stage:1, reason:'想像中的歷史畫面（虛景）與仰慕之情交融。' },
+      '故國神遊，多情應笑我，早生華髮': { stage:2, reason:'收回自身的自我解嘲與身世之感，景物退場，直接抒情。' },
+      '人生如夢，一尊還酹江月': { stage:1, reason:'「人生如夢」是情，「酹江月」以景收束感慨，情景交融。' }
+    }
+  },
+
+  sheng: {
+    name: '聲聲慢·秋情', author: '李清照', genre: '詞（婉約）',
+    fpNote: '全詞無純寫景，景語皆情語（婉約詞風）',
+    stageData: [
+      {
+        name: '純寫景', color: '#2D5B8A', empty: true,
+        emptyNote: '（此位置留空）《聲聲慢》全詞無純寫景——李清照筆下沒有不帶感情的景物：酒是「淡酒」、風是「急風」、雁是「舊時相識」、黃花是「憔悴損」。景語皆情語，這個「空白」正是婉約詞風最有力的證據。'
+      },
+      {
+        name: '情景交融 ★', color: '#7BB36D',
+        quote: '梧桐更兼細雨，到黃昏、點點滴滴',
+        analysis: '梧桐、細雨、黃昏，全是景；但「點點滴滴」既是雨聲，也是心頭愁緒一點一滴的累積——景與情已無縫滲透。詞人不說「愁」，愁卻隨雨聲入耳，這是婉約詞情景交融的最高技巧。',
+        extra: null
+      },
+      {
+        name: '純抒情', color: '#C9443E',
+        quote: '尋尋覓覓，冷冷清清，淒淒慘慘戚戚',
+        analysis: '開篇七組疊字，全寫心理狀態：尋覓的動作、冷清的環境感、淒慘戚的情緒，層層深入內心，沒有一個具體景物。這是詞史上最著名的純抒情開篇。',
+        extra: null
+      }
+    ],
+    sentences: [
+      { id:0, text:'尋尋覓覓，冷冷清清，淒淒慘慘戚戚', answer:2 },
+      { id:1, text:'乍暖還寒時候，最難將息',           answer:1, debatable:true, altAnswer:2,
+        debateNote:'可討論句：判「情景交融」者著重天氣（景）與身體感受（情）並置；判「純抒情」者認為「乍暖還寒」只是引子，重心全在「最難將息」的主觀感受。' },
+      { id:2, text:'三杯兩盞淡酒，怎敵他、晚來風急',   answer:1 },
+      { id:3, text:'雁過也，正傷心，卻是舊時相識',     answer:1 },
+      { id:4, text:'滿地黃花堆積，憔悴損，如今有誰堪摘', answer:1 },
+      { id:5, text:'梧桐更兼細雨，到黃昏、點點滴滴',   answer:1 },
+      { id:6, text:'這次第，怎一個愁字了得',           answer:2 }
+    ],
+    picker: {
+      '尋尋覓覓，冷冷清清，淒淒慘慘戚戚': { stage:2, reason:'七組疊字全寫心理狀態，無一具體景物，是純抒情的經典。' },
+      '乍暖還寒時候，最難將息': { stage:1, altStage:2, debatable:true, reason:'⚖️ 可討論句：天氣（景）與身體感受（情）並置屬交融；若認為重心全在主觀感受，亦可判純抒情。' },
+      '三杯兩盞淡酒，怎敵他、晚來風急': { stage:1, reason:'淡酒與急風皆為愁服務——景是情的對照與烘托。' },
+      '雁過也，正傷心，卻是舊時相識': { stage:1, reason:'雁（景）觸發傷心與回憶（情），景是情的觸媒。' },
+      '滿地黃花堆積，憔悴損，如今有誰堪摘': { stage:1, reason:'黃花憔悴即人憔悴，物我合一，情景交融。' },
+      '梧桐更兼細雨，到黃昏、點點滴滴': { stage:1, reason:'「點點滴滴」既是雨聲也是心聲，景情無縫滲透。' },
+      '這次第，怎一個愁字了得': { stage:2, reason:'直接以「愁」字總結全詞，純粹抒情。' }
+    }
+  },
+
+  qing: {
+    name: '青玉案·元夕', author: '辛棄疾', genre: '詞',
+    fpNote: '情感藏於場景之後，至末句方以景顯情',
+    stageData: [
+      {
+        name: '純寫景', color: '#2D5B8A',
+        quote: '東風夜放花千樹，更吹落、星如雨',
+        analysis: '極寫元夕燈火煙花之盛：「花千樹」「星如雨」全是視覺場景的鋪陳。不過華麗的比喻已隱含讚嘆之情——與《聲聲慢》的「無景不情」相比，此詞上片的景相對獨立，正好對照。',
+        extra: null
+      },
+      {
+        name: '情景交融 ★', color: '#7BB36D',
+        quote: '眾裏尋他千百度，驀然回首，那人卻在，燈火闌珊處',
+        analysis: '千古名句。尋覓的執著（情）與燈火闌珊的冷清角落（景）在「驀然回首」一瞬交匯——詞人孤高自許的品格，不著一字，全由這個畫面顯現。王國維譽之為「古今成大事業、大學問者」的第三境界，正因景與情、事與理在此完全融合。',
+        extra: null
+      },
+      {
+        name: '純抒情', color: '#C9443E', empty: true,
+        emptyNote: '（此位置留空）《青玉案》的情感全由場景承載——詞人不直說孤高自許，只寫「那人卻在，燈火闌珊處」。與《聲聲慢》的「無景不情」相反，此詞可謂「無情不景」。'
+      }
+    ],
+    sentences: [
+      { id:0, text:'東風夜放花千樹，更吹落、星如雨',   answer:0, debatable:true, altAnswer:1,
+        debateNote:'可討論句：判「純寫景」者著重其全是燈火煙花的視覺鋪陳；判「情景交融」者著重華麗比喻中隱含的讚嘆之情。' },
+      { id:1, text:'寶馬雕車香滿路',                   answer:0 },
+      { id:2, text:'鳳簫聲動，玉壺光轉，一夜魚龍舞',   answer:0 },
+      { id:3, text:'蛾兒雪柳黃金縷，笑語盈盈暗香去',   answer:1 },
+      { id:4, text:'眾裏尋他千百度',                   answer:1, debatable:true, altAnswer:2,
+        debateNote:'可討論句：判「情景交融」者著重「眾裏」（人群之景）與「尋」（執著之情）的交織；判「純抒情」者認為重心全在尋覓的執著，人群只是背景。' },
+      { id:5, text:'驀然回首，那人卻在，燈火闌珊處',   answer:1 }
+    ],
+    picker: {
+      '東風夜放花千樹，更吹落、星如雨': { stage:0, altStage:1, debatable:true, reason:'⚖️ 可討論句：全是燈火煙花的視覺鋪陳屬寫景；華麗比喻隱含讚嘆，判交融亦可。' },
+      '寶馬雕車香滿路': { stage:0, reason:'視覺與嗅覺的場景鋪陳，未見情感投入。' },
+      '鳳簫聲動，玉壺光轉，一夜魚龍舞': { stage:0, reason:'聽覺與視覺的節慶場景記述，情感未顯。' },
+      '蛾兒雪柳黃金縷，笑語盈盈暗香去': { stage:1, reason:'寫遊女（景），「暗香去」已暗含目送之意（情）。' },
+      '眾裏尋他千百度': { stage:1, altStage:2, debatable:true, reason:'⚖️ 可討論句：「眾裏」之景與「尋」之執著交織屬交融；若著重執著之情，亦可判純抒情。' },
+      '驀然回首，那人卻在，燈火闌珊處': { stage:1, reason:'頓悟之情全由「燈火闌珊」之景顯現，情景交融的千古典範。' }
+    }
+  }
+};
 
 const stageNames = ['純寫景','情景交融','純抒情'];
+let currentText = 'liu';
+
+function getStageData() { return TEXTS[currentText].stageData; }
+function getSentences() { return TEXTS[currentText].sentences; }
+
+// 合併四篇的 picker 答案庫
+const answerKey = {};
+for (const t of Object.values(TEXTS)) Object.assign(answerKey, t.picker);
 
 // ═══════════════════════════════════════════════
 // TAB 1: SLIDER
@@ -580,7 +755,7 @@ let revealedStages = {}; // 記錄已揭曉的階段（本次操作期間）
 
 function updateSlider(val) {
   const stageIdx = getStageFromPos(val);
-  const d = stageData[stageIdx];
+  const d = getStageData()[stageIdx];
 
   // Markers
   markers.forEach(m => {
@@ -592,11 +767,16 @@ function updateSlider(val) {
   document.getElementById('labelLeft').style.color = val < 33 ? '#7BB36D' : 'rgba(255,255,255,0.5)';
   document.getElementById('labelRight').style.color = val >= 66 ? '#E8923E' : 'rgba(255,255,255,0.5)';
 
-  // Panel —— 猜測模式：未揭曉前只顯示階段名稱
+  // Panel
   let html = `<div class="stage-badge" style="background:${d.color}">${d.name}</div>`;
-  if (!revealedStages[stageIdx]) {
+  if (d.empty) {
+    // 留空教學點（如《聲聲慢》無純寫景、《青玉案》無純抒情）
+    html += `<div class="quote-text" style="text-align:center;color:#666;font-style:italic;">（此位置留空）</div>`;
+    html += `<div class="analysis-text">${d.emptyNote}</div>`;
+  } else if (!revealedStages[stageIdx]) {
+    // 猜測模式：未揭曉前只顯示階段名稱
     html += `<div class="guess-box">
-      <p style="font-size:14px;color:#d0d8e0;margin-bottom:10px;">🤔 猜一猜：哪一句原文最適合放在「${d.name}」這個位置？</p>
+      <p style="font-size:14px;color:#d0d8e0;margin-bottom:10px;">🤔 猜一猜：《${TEXTS[currentText].name}》哪一句最適合放在「${d.name}」這個位置？</p>
       <button class="btn btn-show" onclick="revealStage()">🔮 揭曉例句</button>
     </div>`;
   } else {
@@ -628,7 +808,38 @@ markers.forEach(m => {
   });
 });
 
+// ── 作品選擇器 ──
+function renderTextSelectors() {
+  ['textSelector1','textSelector2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '';
+    for (const [key, t] of Object.entries(TEXTS)) {
+      const btn = document.createElement('button');
+      btn.className = 'text-btn' + (key === currentText ? ' active' : '');
+      btn.textContent = `《${t.name}》${t.author}`;
+      btn.addEventListener('click', () => switchText(key));
+      el.appendChild(btn);
+    }
+  });
+}
+
+function switchText(key) {
+  if (key === currentText) return;
+  currentText = key;
+  revealedStages = {};
+  placements = {};
+  selectedId = null;
+  shuffledSentences = shuffleArray([...getSentences()]);
+  renderTextSelectors();
+  updateSlider(parseInt(slider.value));
+  renderPool();
+  renderDropzones();
+  resultArea.classList.remove('show','correct','incorrect');
+}
+
 // Init
+renderTextSelectors();
 updateSlider(0);
 
 // ═══════════════════════════════════════════════
@@ -649,7 +860,7 @@ function shuffleArray(arr) {
   return arr;
 }
 
-let shuffledSentences = shuffleArray([...sentences]);
+let shuffledSentences = shuffleArray([...getSentences()]);
 
 function renderPool() {
   pool.innerHTML = '';
@@ -675,7 +886,7 @@ function renderDropzones() {
     seg.innerHTML = `<span class="drop-label">${stageNames[idx]}</span>`;
     for (const [sid, stage] of Object.entries(placements)) {
       if (stage === idx) {
-        const s = sentences.find(x => x.id === parseInt(sid));
+        const s = getSentences().find(x => x.id === parseInt(sid));
         if (s) {
           const span = document.createElement('div');
           span.className = 'dropped-item';
@@ -696,7 +907,7 @@ function renderDropzones() {
 }
 
 function updatePlacedCount() {
-  const total = sentences.length;
+  const total = getSentences().length;
   const placed = Object.keys(placements).length;
   placedCount.textContent = `已放置 ${placed} / ${total} 句`;
 }
@@ -722,7 +933,8 @@ function checkAnswers() {
   }
   let correct = 0;
   let html = '';
-  sentences.forEach(s => {
+  const curSents = getSentences();
+  curSents.forEach(s => {
     const userAns = placements[s.id];
     const isPlaced = userAns !== undefined;
     let isCorrect, correctLabel;
@@ -741,15 +953,15 @@ function checkAnswers() {
       ${s.debatable && isCorrect ? `<br><span style="font-size:12px;color:#E8923E;">⚖️ ${s.debateNote}</span>` : ''}
     </div>`;
   });
-  const allCorrect = correct === sentences.length;
-  html += `<div style="margin-top:8px;font-weight:bold;font-size:14px;">得分：${correct} / ${sentences.length}</div>`;
+  const allCorrect = correct === curSents.length;
+  html += `<div style="margin-top:8px;font-weight:bold;font-size:14px;">得分：${correct} / ${curSents.length}</div>`;
   resultArea.className = `result-area show ${allCorrect ? 'correct' : 'incorrect'}`;
   resultArea.innerHTML = html;
 }
 
 document.getElementById('checkBtn').addEventListener('click', checkAnswers);
 document.getElementById('showBtn').addEventListener('click', function() {
-  sentences.forEach(s => { placements[s.id] = s.answer; });
+  getSentences().forEach(s => { placements[s.id] = s.answer; });
   selectedId = null;
   renderPool(); renderDropzones();
   resultArea.className = 'result-area show correct';
@@ -757,7 +969,7 @@ document.getElementById('showBtn').addEventListener('click', function() {
 });
 document.getElementById('resetBtn').addEventListener('click', function() {
   placements = {}; selectedId = null;
-  shuffledSentences = shuffleArray([...sentences]);
+  shuffledSentences = shuffleArray([...getSentences()]);
   renderPool(); renderDropzones();
   resultArea.classList.remove('show','correct','incorrect');
 });
@@ -766,18 +978,22 @@ renderPool(); renderDropzones();
 // ═══════════════════════════════════════════════
 // TAB 3: STUDENT PICKER
 // ═══════════════════════════════════════════════
-const answerKey = {
-  '自余為僇人，居是州，恆惴慄': { stage:2, reason:'直接交代貶謫背景與內心憂懼，無景物描寫，屬於直接抒情。' },
-  '施施而行，漫漫而遊': { stage:2, reason:'寫心態（慢行漫遊），是作者主觀心理狀態的記述，無具體景物。' },
-  '過湘江，緣染溪，斫榛莽，焚茅茷': { stage:0, reason:'一連串動作記述，客觀記錄登山過程，近乎純粹的敘事寫景。' },
-  '凡數州之土壤，皆在衽席之下': { stage:1, altStage:0, debatable:true, reason:'⚖️ 可討論句：判「情景交融」者著重「皆在衽席之下」暗含超越眾山之感；判「純寫景」者著重其客觀俯瞰的視覺記述。兩者皆可，視乎論證是否充分。' },
-  '縈青繚白，外與天際，四望如一': { stage:1, reason:'青山白水遠接天際，開闊感中隱含舒展之情，屬情景交融。' },
-  '悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮': { stage:1, reason:'悠悠洋洋既是寫天地浩瀚（景），也是寫精神自由（情），情景完全融合。' },
-  '心凝形釋，與萬化冥合': { stage:2, reason:'純粹的精神體驗描述，完全脫離具體景物，屬於純抒情。' },
-  '然後知吾嚮之未始遊，遊於是乎始': { stage:2, reason:'純粹的思想領悟與價值重構，無景物、無畫面，屬於純抒情。' },
-  '引觴滿酌，頹然就醉，不知日之入': { stage:1, reason:'「頹然」「不知」既是行動描寫，也是精神狀態，情景交融。' },
-  '蒼然暮色，自遠而至，至無所見，而猶不欲歸': { stage:1, reason:'暮色降臨（景）與「猶不欲歸」的留戀（情）融合，情景相生。' }
-};
+// answerKey 已於資料層由 TEXTS 合併而成
+
+// 動態建立分組選單
+function buildPickerOptions() {
+  const sel = document.getElementById('sentenceSelect');
+  let html = '<option value="">—— 請選擇一句 ——</option>';
+  for (const t of Object.values(TEXTS)) {
+    html += `<optgroup label="《${t.name}》${t.author}">`;
+    for (const s of Object.keys(t.picker)) {
+      html += `<option value="${s}">${s}</option>`;
+    }
+    html += '</optgroup>';
+  }
+  sel.innerHTML = html;
+}
+buildPickerOptions();
 
 document.getElementById('pickerSubmit').addEventListener('click', function() {
   const sentence = document.getElementById('sentenceSelect').value;
@@ -841,6 +1057,33 @@ document.getElementById('lyricSubmit').addEventListener('click', function() {
     </div>
   `;
 });
+
+// ═══════════════════════════════════════════════
+// FINGERPRINT CHART
+// ═══════════════════════════════════════════════
+function renderFingerprint() {
+  const container = document.getElementById('fingerprintArea');
+  if (!container) return;
+  const colors = ['#2D5B8A', '#7BB36D', '#C9443E'];
+  const shortNames = ['景', '融', '情'];
+  let html = '';
+  for (const t of Object.values(TEXTS)) {
+    const counts = [0, 0, 0];
+    t.sentences.forEach(s => counts[s.answer]++);
+    const total = t.sentences.length;
+    html += `<div class="fp-row">
+      <div class="fp-label">《${t.name}》<span class="fp-genre">${t.author}．${t.genre}</span></div>
+      <div class="fp-bar">`;
+    counts.forEach((c, i) => {
+      if (c === 0) return;
+      const pct = (c / total * 100).toFixed(1);
+      html += `<div class="fp-seg" style="width:${pct}%;background:${colors[i]};" title="${stageNames[i]} ${c} 句">${shortNames[i]} ${c}</div>`;
+    });
+    html += `</div><div class="fp-note">${t.fpNote}</div></div>`;
+  }
+  container.innerHTML = html;
+}
+renderFingerprint();
 
 // ═══════════════════════════════════════════════
 // TAB SWITCHING
