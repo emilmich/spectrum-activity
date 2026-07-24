@@ -96,7 +96,10 @@ export default {
       );
 
       if (!apiRes.ok) {
-        return jsonResponse({ error: 'AI service busy, please retry' }, 502);
+        // 把 Gemini 的實際錯誤訊息透出，方便診斷（金鑰／模型／配額問題）
+        const errData = await apiRes.json().catch(() => ({}));
+        const errMsg = errData?.error?.message || `HTTP ${apiRes.status}`;
+        return jsonResponse({ error: `Gemini error: ${errMsg}` }, 502);
       }
 
       const data = await apiRes.json();
@@ -106,7 +109,7 @@ export default {
       return jsonResponse({ feedback: text });
 
     } catch (e) {
-      return jsonResponse({ error: 'Server error' }, 500);
+      return jsonResponse({ error: `Server error: ${e.message}` }, 500);
     }
   }
 };
