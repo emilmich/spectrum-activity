@@ -65,6 +65,19 @@ export default {
 
     try {
       const body = await request.json();
+
+      // 診斷模式：確認金鑰是否正確讀取（不回傳完整金鑰）
+      if (body.debug === true) {
+        const k = env.GEMINI_API_KEY || '';
+        return jsonResponse({
+          keySet: k.length > 0,
+          keyPrefix: k.length > 0 ? k.slice(0, 4) : '(空)',
+          keyLength: k.length,
+          hasLeadingSpace: k !== k.trimStart(),
+          hasTrailingSpace: k !== k.trimEnd()
+        });
+      }
+
       const messages = body.messages;
 
       // 基本驗證
