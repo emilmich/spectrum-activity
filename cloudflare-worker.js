@@ -5,7 +5,7 @@
 // ═══════════════════════════════════════════════════════════
 
 const ALLOWED_ORIGIN = 'https://emilmich.github.io';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const DEFAULT_MODEL = 'gemini-2.5-flash';
 
 // ── 評改老師的系統提示詞 ──
 const SYSTEM_PROMPT = `你是香港中學文憑試（DSE）中文科的老師，專門評改學生以「情景交融」手法創作的句子或片段。學生正學習柳宗元《始得西山宴遊記》、蘇軾《念奴嬌·赤壁懷古》、李清照《聲聲慢·秋情》、辛棄疾《青玉案·元夕》四篇範文。
@@ -94,8 +94,9 @@ export default {
         parts: [{ text: m.content }]
       }));
 
+      const model = env.GEMINI_MODEL || DEFAULT_MODEL;
       const apiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${env.GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
