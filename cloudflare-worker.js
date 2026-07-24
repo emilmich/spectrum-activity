@@ -5,23 +5,62 @@
 // ═══════════════════════════════════════════════════════════
 
 const ALLOWED_ORIGIN = 'https://emilmich.github.io';
+const WORKER_VERSION = 'v4-model-fallback';
 
-// ── 自動偵測可用模型（Google 經常更換型號，避免硬編碼）──
+// ── 候選型號自動備援：逐個實測，邊個用到用邊個 ──
 let cachedModel = null;
-async function resolveModel(apiKey) {
-  if (cachedModel) return cachedModel;
+
+async function listModels(apiKey) {
   try {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
     const data = await res.json();
-    const names = (data.models || [])
+    return (data.models || [])
       .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
       .map(m => m.name.replace(/^models\//, ''))
       .filter(n => !/image|tts|embedding|aqa|imagen/i.test(n));
-    cachedModel = names.find(n => /flash/i.test(n)) || names[0] || 'gemini-2.5-flash';
-  } catch (e) {
-    cachedModel = 'gemini-2.5-flash';
+  } catch (e) { return []; }
+}
+
+function sortCandidates(names) {
+  const score = n => {
+    let s = 0;
+    if (/flash/i.test(n)) s += 100;      // flash 快且平
+    if (/lite/i.test(n)) s += 20;        // lite 更慳配額
+    const v = n.match(/(\d+(?:\.\d+)?)/);
+    if (v) s += parseFloat(v[1]);        // 版本愈新愈好
+    return s;
+  };
+  return [...names].sort((a, b) => score(b) - score(a));
+}
+
+function callGemini(apiKey, model, payload) {
+  return fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
+  );
+}
+
+// 逐個候選型號實測，回傳第一個成功的回應
+async function callWithFallback(apiKey, payload) {
+  const candidates = [];
+  if (cachedModel) candidates.push(cachedModel);
+  candidates.push(...sortCandidates(await listModels(apiKey)));
+
+  const tried = new Set();
+  let lastErr = 'no available model';
+  for (const cand of candidates) {
+    if (tried.has(cand)) continue;
+    tried.add(cand);
+    const r = await callGemini(apiKey, cand, payload);
+    if (r.ok) {
+      cachedModel = cand;
+      return { res: r, model: cand };
+    }
+    const e = await r.json().catch(() => ({}));
+    lastErr = e?.error?.message || `HTTP ${r.status}`;
+    if (cachedModel === cand) cachedModel = null; // 快取失效，清咗佢
   }
-  return cachedModel;
+  return { error: lastErr };
 }
 
 // ── 評改老師的系統提示詞 ──
@@ -83,15 +122,16 @@ export default {
     try {
       const body = await request.json();
 
-      // 診斷模式：列出 Worker 實際見到的所有變數名稱
+      // 診斷模式：顯示版本、金鑰狀態、可用型號清單
       if (body.debug === true) {
         const k = env.GEMINI_API_KEY || '';
         return jsonResponse({
+          version: WORKER_VERSION,
           keySet: k.length > 0,
           keyLength: k.length,
           visibleNames: Object.keys(env),
-          targetName: 'GEMINI_API_KEY',
-          resolvedModel: k ? await resolveModel(k) : '(無金鑰)'
+          availableModels: k ? sortCandidates(await listModels(k)) : [],
+          cachedModel
         });
       }
 
@@ -112,32 +152,35 @@ export default {
         parts: [{ text: m.content }]
       }));
 
-      const model = env.GEMINI_MODEL || await resolveModel(env.GEMINI_API_KEY);
-      const apiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-            contents: geminiContents,
-            generationConfig: { temperature: 0.6, maxOutputTokens: 700 }
-          })
-        }
-      );
+      const payload = {
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: geminiContents,
+        generationConfig: { temperature: 0.6, maxOutputTokens: 700 }
+      };
 
-      if (!apiRes.ok) {
-        // 把 Gemini 的實際錯誤訊息透出，方便診斷（金鑰／模型／配額問題）
-        const errData = await apiRes.json().catch(() => ({}));
-        const errMsg = errData?.error?.message || `HTTP ${apiRes.status}`;
-        return jsonResponse({ error: `Gemini error: ${errMsg}` }, 502);
+      // 教師可用 GEMINI_MODEL 變數指定型號；否則自動備援
+      let data, usedModel;
+      if (env.GEMINI_MODEL) {
+        const r = await callGemini(env.GEMINI_API_KEY, env.GEMINI_MODEL, payload);
+        if (!r.ok) {
+          const e = await r.json().catch(() => ({}));
+          return jsonResponse({ error: `Gemini error: ${e?.error?.message || 'HTTP ' + r.status}` }, 502);
+        }
+        data = await r.json();
+        usedModel = env.GEMINI_MODEL;
+      } else {
+        const outcome = await callWithFallback(env.GEMINI_API_KEY, payload);
+        if (outcome.error) {
+          return jsonResponse({ error: `Gemini error: ${outcome.error}` }, 502);
+        }
+        data = await outcome.res.json();
+        usedModel = outcome.model;
       }
 
-      const data = await apiRes.json();
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
         || '（暫時未能取得評語，請稍後再試。）';
 
-      return jsonResponse({ feedback: text });
+      return jsonResponse({ feedback: text, model: usedModel, version: WORKER_VERSION });
 
     } catch (e) {
       return jsonResponse({ error: `Server error: ${e.message}` }, 500);
