@@ -8,8 +8,8 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
-  background: #1a1a2e;
-  color: #eaeaea;
+  background: #f5f1e8;
+  color: #3d4443;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -20,32 +20,33 @@ header { text-align: center; margin-bottom: 28px; }
 header h1 {
   font-size: clamp(24px, 4vw, 36px);
   letter-spacing: 3px;
-  background: linear-gradient(90deg, #2D5B8A, #7BB36D, #C9443E);
+  background: linear-gradient(90deg, #2D5B8A, #5e8f52, #b8544c);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
+header p { color: #9a958a; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 
 /* ── Tabs ── */
 .tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
 .tab-btn {
   flex: 1; min-width: 100px; padding: 10px 14px; border: none;
-  border-radius: 8px 8px 0 0; background: #2a2a3e; cursor: pointer;
+  border-radius: 8px 8px 0 0; background: #eae3d2; cursor: pointer;
   font-size: 14px; font-weight: bold; transition: all 0.2s;
-  color: #888; font-family: inherit;
+  color: #9a958a; font-family: inherit;
 }
-.tab-btn:hover { background: #333; color: #ccc; }
-.tab-btn.active { background: #16213e; color: #fff; box-shadow: 0 -2px 0 #7BB36D; }
+.tab-btn:hover { background: #e0d8c4; color: #5a5f5e; }
+.tab-btn.active { background: #fffdf7; color: #3d4443; box-shadow: 0 -2px 0 #7BB36D; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
 .card {
-  background: #16213e;
+  background: #fffdf7;
   border-radius: 14px;
   padding: clamp(16px, 3vw, 32px);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(120,100,60,0.10);
   margin-bottom: 20px;
+  border: 1px solid #ede6d4;
 }
 
 /* ════════════════════════════════════════════ */
@@ -67,14 +68,14 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 }
 .stage-marker {
   font-size: clamp(9px, 1.2vw, 12px);
-  color: #888;
+  color: #9a958a;
   text-align: center;
   cursor: pointer;
   transition: color 0.2s;
   padding: 2px 0;
 }
-.stage-marker:hover { color: #fff; }
-.stage-marker.active { color: #fff; font-weight: bold; }
+.stage-marker:hover { color: #3d4443; }
+.stage-marker.active { color: #3d4443; font-weight: bold; }
 
 /* Custom slider */
 .slider-wrapper {
@@ -90,7 +91,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   height: 14px;
   transform: translateY(-50%);
   border-radius: 7px;
-   background: linear-gradient(90deg, #2D5B8A, #7BB36D, #C9443E);
+  background: linear-gradient(90deg, #5B83AC, #8FBC85, #CE7368);
   z-index: 0;
 }
 .slider-wrapper input[type="range"] {
@@ -109,9 +110,9 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   appearance: none;
   width: 28px; height: 28px;
   border-radius: 50%;
-  background: #fff;
-  border: 3px solid #1a1a2e;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  background: #fffdf7;
+  border: 3px solid #3d4443;
+  box-shadow: 0 2px 8px rgba(100,85,50,0.3);
   cursor: pointer;
   transition: transform 0.15s;
 }
@@ -121,9 +122,9 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 .slider-wrapper input[type="range"]::-moz-range-thumb {
   width: 28px; height: 28px;
   border-radius: 50%;
-  background: #fff;
-  border: 3px solid #1a1a2e;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  background: #fffdf7;
+  border: 3px solid #3d4443;
+  box-shadow: 0 2px 8px rgba(100,85,50,0.3);
   cursor: pointer;
 }
 
@@ -137,17 +138,18 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 .slider-labels span {
   font-size: clamp(10px, 1.3vw, 13px);
   font-weight: bold;
-  color: rgba(255,255,255,0.5);
+  color: #b0aa9a;
   transition: color 0.3s;
 }
-.slider-labels span.active { color: #fff; }
+.slider-labels span.active { color: #3d4443; }
 
 /* Info panel */
 .info-panel {
   margin-top: 20px;
   padding: 18px 22px;
-  background: #0f3460;
+  background: #faf6ec;
   border-radius: 12px;
+  border: 1px solid #ede6d4;
   border-left: 5px solid #7BB36D;
   transition: border-color 0.3s;
   min-height: 200px;
@@ -163,69 +165,70 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 }
 .info-panel .quote-text {
   font-size: clamp(16px, 2vw, 20px);
-  color: #f0e6d0;
+  color: #4a4234;
   line-height: 1.6;
   margin-bottom: 10px;
   padding: 8px 12px;
-  background: rgba(0,0,0,0.2);
+  background: #fffdf7;
   border-radius: 8px;
-  border-left: 3px solid rgba(255,255,255,0.15);
+  border: 1px solid #ede6d4;
+  border-left: 3px solid #c9bfa5;
 }
 .info-panel .analysis-text {
   font-size: clamp(13px, 1.5vw, 15px);
-  color: #b0b8c8;
+  color: #6a6f6d;
   line-height: 1.7;
 }
 .info-panel .extra-box {
   margin-top: 14px;
   padding: 12px 16px;
-  background: rgba(123,179,109,0.12);
+  background: #eef4e6;
   border-radius: 8px;
-  border: 1px solid rgba(123,179,109,0.3);
+  border: 1px solid #cdddbd;
 }
-.info-panel .extra-box p { font-size: 13px; color: #c0d8b0; line-height: 1.6; }
-.info-panel .extra-box strong { color: #7BB36D; }
+.info-panel .extra-box p { font-size: 13px; color: #5a7250; line-height: 1.6; }
+.info-panel .extra-box strong { color: #5e8f52; }
 
 /* Guess mode box */
 .guess-box {
   padding: 22px;
   text-align: center;
-  background: rgba(0,0,0,0.18);
+  background: #fffdf7;
   border-radius: 10px;
-  border: 1px dashed rgba(255,255,255,0.25);
+  border: 1px dashed #c9bfa5;
 }
 .guess-box .btn { margin-top: 6px; }
 
 /* Text selector */
 .text-selector { display: flex; gap: 8px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
 .text-btn {
-  padding: 8px 16px; border-radius: 20px; border: 1px solid #2a4a7a;
-  background: #0f3460; color: #b0b8c8; cursor: pointer; font-size: 13px;
+  padding: 8px 16px; border-radius: 20px; border: 1px solid #d8cfb8;
+  background: #faf6ec; color: #6a6f6d; cursor: pointer; font-size: 13px;
   font-family: inherit; transition: all 0.2s;
 }
-.text-btn:hover { border-color: #4A8BC2; color: #fff; }
+.text-btn:hover { border-color: #8FBC85; color: #3d4443; }
 .text-btn.active { background: #7BB36D; border-color: #7BB36D; color: #fff; font-weight: bold; }
 
 /* Fingerprint chart */
 .fp-row { margin-bottom: 14px; }
-.fp-label { font-size: 14px; margin-bottom: 4px; color: #e0e8f0; }
-.fp-genre { font-size: 11px; color: #888; margin-left: 8px; }
-.fp-bar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; background: #0f3460; }
+.fp-label { font-size: 14px; margin-bottom: 4px; color: #3d4443; }
+.fp-genre { font-size: 11px; color: #9a958a; margin-left: 8px; }
+.fp-bar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; background: #eae3d2; }
 .fp-seg { display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; font-weight: bold; min-width: 0; }
-.fp-note { font-size: 12px; color: #888; margin-top: 3px; }
+.fp-note { font-size: 12px; color: #9a958a; margin-top: 3px; }
 
 /* Teacher note */
 .teacher-note {
   margin-top: 14px;
   padding: 12px 16px;
-  background: rgba(232,146,62,0.1);
+  background: #faf3e2;
   border-radius: 8px;
-  border: 1px dashed rgba(232,146,62,0.3);
+  border: 1px dashed #e0c890;
   font-size: 13px;
-  color: #d0b890;
+  color: #8a7040;
   line-height: 1.6;
 }
-.teacher-note strong { color: #E8923E; }
+.teacher-note strong { color: #b07f2e; }
 
 /* ════════════════════════════════════════════ */
 /* TAB 2: SENTENCE SORTING (Click-based) */
@@ -235,8 +238,8 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 .spectrum-dropzone { flex: 1; min-width: 260px; }
 
 .sentence-card {
-  background: #0f3460;
-  border: 2px solid #2a4a7a;
+  background: #fffdf7;
+  border: 2px solid #e0d8c4;
   border-radius: 10px;
   padding: 10px 14px;
   margin-bottom: 8px;
@@ -244,42 +247,41 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   user-select: none;
   font-size: 14px;
   transition: all 0.2s;
-  color: #d0d8e0;
+  color: #4a4f4d;
 }
-.sentence-card:hover { border-color: #4a8bc2; background: #1a4070; }
-.sentence-card.selected { border-color: #7BB36D; background: #1a4a2a; color: #fff; }
+.sentence-card:hover { border-color: #8FBC85; background: #f6f9ef; }
+.sentence-card.selected { border-color: #7BB36D; background: #eef4e6; color: #3d4443; }
 .sentence-card.dropped { opacity: 0.4; cursor: default; pointer-events: none; }
 
 .dropzone-row { display: flex; border-radius: 8px; overflow: hidden; height: auto; min-height: 50px; margin-bottom: 0; }
 .drop-segment {
   flex: 1; display: flex; flex-direction: column; align-items: center;
   justify-content: flex-start; padding: 6px 2px;
-  color: rgba(255,255,255,0.5); font-size: 10px; font-weight: bold;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  color: rgba(255,255,255,0.85); font-size: 10px; font-weight: bold;
   border: 2px solid transparent;
   transition: all 0.2s;
   min-height: 60px;
   cursor: pointer;
 }
-.drop-segment.s0 { background: #2D5B8A; }
-.drop-segment.s1 { background: #7BB36D; }
-.drop-segment.s2 { background: #C9443E; }
-.drop-segment:hover { filter: brightness(1.25); }
+.drop-segment.s0 { background: #5B83AC; }
+.drop-segment.s1 { background: #8FBC85; }
+.drop-segment.s2 { background: #CE7368; }
+.drop-segment:hover { filter: brightness(1.08); }
 .drop-segment .drop-label { font-size: 10px; margin-bottom: 3px; text-align: center; }
 .drop-segment .dropped-item {
   font-size: 10px; color: #fff; text-align: center;
   line-height: 1.3; padding: 1px 2px; width: 100%;
-  border-top: 1px solid rgba(255,255,255,0.15);
+  border-top: 1px solid rgba(255,255,255,0.3);
   margin-top: 2px;
   padding-top: 2px;
   cursor: pointer;
   transition: background 0.2s;
 }
-.drop-segment .dropped-item:hover { background: rgba(0,0,0,0.25); }
+.drop-segment .dropped-item:hover { background: rgba(0,0,0,0.15); }
 .dropzone-labels { display: flex; margin-bottom: 4px; }
-.dropzone-labels span { flex:1; text-align:center; font-size:11px; color:#777; }
+.dropzone-labels span { flex:1; text-align:center; font-size:11px; color:#9a958a; }
 
-.placed-count { text-align:center; margin:10px 0; font-size:13px; color:#888; }
+.placed-count { text-align:center; margin:10px 0; font-size:13px; color:#9a958a; }
 
 .btn-group { display:flex; justify-content:center; gap:10px; margin-top:14px; flex-wrap:wrap; }
 .btn {
@@ -289,19 +291,19 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 }
 .btn-check { background: #7BB36D; color: #fff; }
 .btn-check:hover { background: #6a9f5e; }
-.btn-reset { background: #444; color: #ccc; }
-.btn-reset:hover { background: #555; }
-.btn-show { background: #4A8BC2; color: #fff; }
-.btn-show:hover { background: #3a7bb0; }
+.btn-reset { background: #e0d8c4; color: #5a5f5e; }
+.btn-reset:hover { background: #d3c9b0; }
+.btn-show { background: #5B83AC; color: #fff; }
+.btn-show:hover { background: #4a7298; }
 
 .result-area { margin-top:14px; padding:14px; border-radius:8px; display:none; font-size:13px; line-height:1.6; }
 .result-area.show { display:block; }
-.result-area.correct { background: rgba(123,179,109,0.15); border:1px solid #7BB36D; }
-.result-area.incorrect { background: rgba(201,68,62,0.15); border:1px solid #C9443E; }
-.result-item { padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+.result-area.correct { background: #eef4e6; border:1px solid #8FBC85; }
+.result-area.incorrect { background: #f9ecea; border:1px solid #CE7368; }
+.result-item { padding:5px 0; border-bottom:1px solid rgba(100,90,60,0.12); }
 .result-item:last-child { border-bottom:none; }
-.ri-correct { color: #7BB36D; font-weight:bold; }
-.ri-incorrect { color: #C9443E; font-weight:bold; }
+.ri-correct { color: #5e8f52; font-weight:bold; }
+.ri-incorrect { color: #b8544c; font-weight:bold; }
 
 /* ════════════════════════════════════════════ */
 /* TAB 3: DEEP ANALYSIS + EXTENSION */
@@ -309,35 +311,35 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 .analysis-section { margin-bottom: 20px; }
 .analysis-section h3 {
   font-size: 16px; margin-bottom: 10px;
-  color: #7BB36D; border-left: 3px solid #7BB36D; padding-left: 12px;
+  color: #5e8f52; border-left: 3px solid #8FBC85; padding-left: 12px;
 }
 .analysis-section p, .analysis-section li {
-  font-size: 14px; line-height: 1.8; color: #b0b8c8; margin-bottom: 8px;
+  font-size: 14px; line-height: 1.8; color: #6a6f6d; margin-bottom: 8px;
 }
 .analysis-section ul { padding-left: 22px; }
-.analysis-section strong { color: #e0e8f0; }
+.analysis-section strong { color: #3d4443; }
 
 .compare-table {
   width: 100%; border-collapse: collapse; margin: 12px 0;
   font-size: 13px;
 }
 .compare-table th, .compare-table td {
-  padding: 10px 14px; border: 1px solid #2a4a7a;
+  padding: 10px 14px; border: 1px solid #e0d8c4;
   text-align: left; vertical-align: top;
 }
-.compare-table th { background: #0f3460; color: #4A8BC2; font-weight: bold; }
-.compare-table td { background: rgba(15,52,96,0.3); color: #b0b8c8; }
+.compare-table th { background: #f0ead8; color: #3a6a96; font-weight: bold; }
+.compare-table td { background: #fbf8ef; color: #6a6f6d; }
 
 /* Student picker */
 .picker-area { margin-top: 16px; }
 .picker-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
 .picker-row select, .picker-row input {
   flex: 1; min-width: 200px;
-  padding: 8px 12px; border-radius: 8px; border: 1px solid #2a4a7a;
-  background: #0f3460; color: #eaeaea; font-size: 14px;
+  padding: 8px 12px; border-radius: 8px; border: 1px solid #d8cfb8;
+  background: #fffdf7; color: #3d4443; font-size: 14px;
   font-family: inherit;
 }
-.picker-row select option { color: #eaeaea; }
+.picker-row select option { color: #3d4443; }
 .picker-btn {
   padding: 8px 20px; border: none; border-radius: 8px;
   background: #7BB36D; color: #fff; font-weight: bold;
@@ -346,14 +348,15 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 .picker-btn:hover { background: #6a9f5e; }
 .picker-result {
   margin-top: 8px; padding: 12px 16px; border-radius: 8px;
-  background: rgba(15,52,96,0.5); border: 1px solid #2a4a7a;
-  font-size: 13px; color: #b0b8c8; line-height: 1.6;
+  background: #faf6ec; border: 1px solid #e0d8c4;
+  font-size: 13px; color: #6a6f6d; line-height: 1.6;
   min-height: 50px;
 }
 
 /* Lyric extension */
 .lyric-input-area { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-.lyric-input-area input { flex: 1; min-width: 200px; padding: 8px 12px; border-radius: 8px; border: 1px solid #2a4a7a; background: #0f3460; color: #eaeaea; font-size: 14px; font-family: inherit; }
+.lyric-input-area input { flex: 1; min-width: 200px; padding: 8px 12px; border-radius: 8px; border: 1px solid #d8cfb8; background: #fffdf7; color: #3d4443; font-size: 14px; font-family: inherit; }
+.lyric-input-area select { padding: 8px 12px; border-radius: 8px; border: 1px solid #d8cfb8; background: #fffdf7; color: #3d4443; font-size: 14px; font-family: inherit; }
 
 /* ── Responsive ── */
 @media (max-width: 700px) {
@@ -385,7 +388,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   <div class="card">
     <div class="text-selector" id="textSelector1"></div>
     <div class="spectrum-title">🎯 拖曳滑桿探索光譜</div>
-    <p style="text-align:center;font-size:13px;color:#888;margin-bottom:14px;">
+    <p style="text-align:center;font-size:13px;color:#9a958a;margin-bottom:14px;">
       愈往左：寫景愈多、抒情愈淡 &nbsp;•&nbsp; 愈往右：寫景愈少、抒情愈濃
     </p>
 
@@ -426,11 +429,11 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   <div class="card">
     <h2 style="font-size:17px;margin-bottom:6px;">句子歸類活動</h2>
     <div class="text-selector" id="textSelector2"></div>
-    <p style="font-size:13px;color:#888;margin-bottom:12px;">先點選左邊句子，再點擊光譜上的階段放置；放錯可點擊已放置的句子撤回。<span style="color:#E8923E;">⚖️ 標記的句子屬可討論題，兩個答案均可，關鍵在理由。</span></p>
+    <p style="font-size:13px;color:#9a958a;margin-bottom:12px;">先點選左邊句子，再點擊光譜上的階段放置；放錯可點擊已放置的句子撤回。<span style="color:#b07f2e;">⚖️ 標記的句子屬可討論題，兩個答案均可，關鍵在理由。</span></p>
 
     <div class="game-area">
       <div class="sentence-pool">
-        <h3 style="font-size:13px;margin-bottom:8px;color:#777;">📄 句子列表</h3>
+        <h3 style="font-size:13px;margin-bottom:8px;color:#9a958a;">📄 句子列表</h3>
         <div id="sentencePool"></div>
       </div>
       <div class="spectrum-dropzone">
@@ -460,7 +463,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
 <div class="tab-content" id="tab3">
   <div class="card">
     <h2 style="font-size:17px;margin-bottom:4px;">深度分析</h2>
-    <p style="font-size:13px;color:#888;margin-bottom:14px;">為甚麼「然後知吾嚮之未始遊，遊於是乎始」屬於純抒情？</p>
+    <p style="font-size:13px;color:#9a958a;margin-bottom:14px;">為甚麼「然後知吾嚮之未始遊，遊於是乎始」屬於純抒情？</p>
 
     <div class="analysis-section">
       <p>這句話之所以能穩穩落在光譜最右端「純抒情」位置，關鍵在於它<strong>完全脫離了眼前的具體景物</strong>，是一句純粹向內心、向認知層面發出的感悟陳述。</p>
@@ -492,7 +495,7 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   <!-- Student self-selection -->
   <div class="card">
     <h2 style="font-size:17px;margin-bottom:4px;">🧑‍🎓 學生自選練習</h2>
-    <p style="font-size:13px;color:#888;margin-bottom:14px;">從課文中揀一句，判斷它在光譜上的位置，並說明理由。</p>
+    <p style="font-size:13px;color:#9a958a;margin-bottom:14px;">從課文中揀一句，判斷它在光譜上的位置，並說明理由。</p>
     <div class="picker-area">
       <div class="picker-row">
         <select id="sentenceSelect"></select>
@@ -511,8 +514,8 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   <!-- Cantonese lyrics extension -->
   <div class="card">
     <h2 style="font-size:17px;margin-bottom:4px;">🎵 延伸：粵語歌詞光譜</h2>
-    <p style="font-size:13px;color:#888;margin-bottom:10px;">
-      試找一句粵語歌詞，套入光譜作判斷。<strong style="color:#7BB36D;">提示：</strong>Beyond〈海闊天空〉「天空海闊你與我可會變」——這句是景（天空海闊）還是情（你我之間的承諾）？屬於光譜哪個階段？（提示：景與情各佔一半，難以分割，屬於「情景交融」）
+    <p style="font-size:13px;color:#9a958a;margin-bottom:10px;">
+      試找一句粵語歌詞，套入光譜作判斷。<strong style="color:#5e8f52;">提示：</strong>Beyond〈海闊天空〉「天空海闊你與我可會變」——這句是景（天空海闊）還是情（你我之間的承諾）？屬於光譜哪個階段？（提示：景與情各佔一半，難以分割，屬於「情景交融」）
     </p>
     <div class="lyric-input-area">
       <input type="text" id="lyricInput" placeholder="輸入一句粵語歌詞……">
@@ -529,11 +532,11 @@ header p { color: #999; font-size: 14px; margin-top: 4px; letter-spacing: 1px; }
   <!-- Fingerprint comparison -->
   <div class="card">
     <h2 style="font-size:17px;margin-bottom:4px;">📊 光譜指紋：四篇對比</h2>
-    <p style="font-size:13px;color:#888;margin-bottom:14px;">每篇作品的句子在光譜上的分佈，如同指紋般獨一無二——風格差異由此可見。</p>
+    <p style="font-size:13px;color:#9a958a;margin-bottom:14px;">每篇作品的句子在光譜上的分佈，如同指紋般獨一無二——風格差異由此可見。</p>
     <div id="fingerprintArea"></div>
-    <div style="margin-top:16px;padding:14px;background:rgba(15,52,96,0.5);border-radius:8px;border:1px solid #2a4a7a;">
-      <h3 style="font-size:14px;margin-bottom:8px;color:#7BB36D;">💬 討論問題</h3>
-      <ol style="font-size:13px;line-height:1.8;color:#b0b8c8;padding-left:20px;">
+    <div style="margin-top:16px;padding:14px;background:#faf6ec;border-radius:8px;border:1px solid #e0d8c4;">
+      <h3 style="font-size:14px;margin-bottom:8px;color:#5e8f52;">💬 討論問題</h3>
+      <ol style="font-size:13px;line-height:1.8;color:#6a6f6d;padding-left:20px;">
         <li>為甚麼詞（尤其婉約詞）的分佈偏向中間及右方，而散文能橫跨全譜？</li>
         <li>《聲聲慢》沒有純寫景、《青玉案》沒有純抒情——這兩個「空白」各自說明了甚麼？</li>
         <li>豪放詞（蘇軾）與婉約詞（李清照）的指紋有何不同？這與他們的風格有何關係？</li>
@@ -554,13 +557,13 @@ const TEXTS = {
     fpNote: '橫跨全譜——由景入情，層層遞進（散文特色）',
     stageData: [
       {
-        name: '純寫景', color: '#2D5B8A',
+        name: '純寫景', color: '#5B83AC',
         quote: '其高下之勢，岈然窪然，若垤若穴，尺寸千里，攢蹙累積，莫得遯隱',
         analysis: '純粹描寫從西山俯瞰所見的地形地貌，以「岈然」「窪然」「若垤」「若穴」等比喻客觀呈現景物，未有直接表達情感或評價。整句功能是「呈現畫面」，而非「抒發感受」。這是最接近「純寫景」一端的典例。',
         extra: null
       },
       {
-        name: '情景交融 ★', color: '#7BB36D',
+        name: '情景交融 ★', color: '#8FBC85',
         quote: '悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮',
         analysis: '情景交融的極致。「悠悠乎」「洋洋乎」既是寫天地之浩瀚（景），同時也是寫作者精神之自由（情）。景不是客觀的景，情也不是抽象的情——二者已融為一體，無法區分何者為景、何者為情。這就是「心凝形釋，與萬化冥合」的具體呈現。',
         extra: {
@@ -569,7 +572,7 @@ const TEXTS = {
         }
       },
       {
-        name: '純抒情', color: '#C9443E',
+        name: '純抒情', color: '#CE7368',
         quote: '心凝形釋，與萬化冥合。然後知吾嚮之未始遊，遊於是乎始',
         analysis: '已脫離具體的景物描寫，直接抒發作者的精神體驗與哲學領悟。「心凝形釋」是內在感受的描述，「然後知……」是純粹的思想總結與價值重構。景物在這裏已經隱退，只留下情感與思想。這是最接近「純抒情」一端的典例。',
         extra: null
@@ -605,19 +608,19 @@ const TEXTS = {
     fpNote: '壯景起、慨嘆收，分佈平均（豪放詞風）',
     stageData: [
       {
-        name: '純寫景', color: '#2D5B8A',
+        name: '純寫景', color: '#5B83AC',
         quote: '亂石穿空，驚濤拍岸，捲起千堆雪',
         analysis: '集中筆墨刻畫赤壁的險峻與江濤的壯觀：亂石、驚濤、捲雪，全是視覺與動態的呈現。不過「驚」字已暗寓情感震盪——這句其實站在純寫景與情景交融的邊界上，正好用作討論起點。',
         extra: null
       },
       {
-        name: '情景交融 ★', color: '#7BB36D',
+        name: '情景交融 ★', color: '#8FBC85',
         quote: '大江東去，浪淘盡、千古風流人物',
         analysis: '開篇即交融典範。「大江東去」是眼前實景，「浪淘盡、千古風流人物」卻把江水化為歷史長河——景中早已注入對興亡的感慨，分不清是寫江還是寫歷史。豪放詞的氣魄，正在於以壯景載豪情。',
         extra: null
       },
       {
-        name: '純抒情', color: '#C9443E',
+        name: '純抒情', color: '#CE7368',
         quote: '故國神遊，多情應笑我，早生華髮',
         analysis: '從赤壁之景、周瑜之事收回自身：神遊、多情、華髮，全是內心的自我解嘲與身世之感，景物完全退場。這是詞中情感最直白的一筆。',
         extra: null
@@ -649,17 +652,17 @@ const TEXTS = {
     fpNote: '全詞無純寫景，景語皆情語（婉約詞風）',
     stageData: [
       {
-        name: '純寫景', color: '#2D5B8A', empty: true,
+        name: '純寫景', color: '#5B83AC', empty: true,
         emptyNote: '（此位置留空）《聲聲慢》全詞無純寫景——李清照筆下沒有不帶感情的景物：酒是「淡酒」、風是「急風」、雁是「舊時相識」、黃花是「憔悴損」。景語皆情語，這個「空白」正是婉約詞風最有力的證據。'
       },
       {
-        name: '情景交融 ★', color: '#7BB36D',
+        name: '情景交融 ★', color: '#8FBC85',
         quote: '梧桐更兼細雨，到黃昏、點點滴滴',
         analysis: '梧桐、細雨、黃昏，全是景；但「點點滴滴」既是雨聲，也是心頭愁緒一點一滴的累積——景與情已無縫滲透。詞人不說「愁」，愁卻隨雨聲入耳，這是婉約詞情景交融的最高技巧。',
         extra: null
       },
       {
-        name: '純抒情', color: '#C9443E',
+        name: '純抒情', color: '#CE7368',
         quote: '尋尋覓覓，冷冷清清，淒淒慘慘戚戚',
         analysis: '開篇七組疊字，全寫心理狀態：尋覓的動作、冷清的環境感、淒慘戚的情緒，層層深入內心，沒有一個具體景物。這是詞史上最著名的純抒情開篇。',
         extra: null
@@ -691,19 +694,19 @@ const TEXTS = {
     fpNote: '情感藏於場景之後，至末句方以景顯情',
     stageData: [
       {
-        name: '純寫景', color: '#2D5B8A',
+        name: '純寫景', color: '#5B83AC',
         quote: '東風夜放花千樹，更吹落、星如雨',
         analysis: '極寫元夕燈火煙花之盛：「花千樹」「星如雨」全是視覺場景的鋪陳。不過華麗的比喻已隱含讚嘆之情——與《聲聲慢》的「無景不情」相比，此詞上片的景相對獨立，正好對照。',
         extra: null
       },
       {
-        name: '情景交融 ★', color: '#7BB36D',
+        name: '情景交融 ★', color: '#8FBC85',
         quote: '眾裏尋他千百度，驀然回首，那人卻在，燈火闌珊處',
         analysis: '千古名句。尋覓的執著（情）與燈火闌珊的冷清角落（景）在「驀然回首」一瞬交匯——詞人孤高自許的品格，不著一字，全由這個畫面顯現。王國維譽之為「古今成大事業、大學問者」的第三境界，正因景與情、事與理在此完全融合。',
         extra: null
       },
       {
-        name: '純抒情', color: '#C9443E', empty: true,
+        name: '純抒情', color: '#CE7368', empty: true,
         emptyNote: '（此位置留空）《青玉案》的情感全由場景承載——詞人不直說孤高自許，只寫「那人卻在，燈火闌珊處」。與《聲聲慢》的「無景不情」相反，此詞可謂「無情不景」。'
       }
     ],
@@ -764,8 +767,8 @@ function updateSlider(val) {
   });
 
   // Labels
-  document.getElementById('labelLeft').style.color = val < 33 ? '#7BB36D' : 'rgba(255,255,255,0.5)';
-  document.getElementById('labelRight').style.color = val >= 66 ? '#E8923E' : 'rgba(255,255,255,0.5)';
+  document.getElementById('labelLeft').style.color = val < 33 ? '#5e8f52' : '#b0aa9a';
+  document.getElementById('labelRight').style.color = val >= 66 ? '#b8544c' : '#b0aa9a';
 
   // Panel
   let html = `<div class="stage-badge" style="background:${d.color}">${d.name}</div>`;
@@ -776,7 +779,7 @@ function updateSlider(val) {
   } else if (!revealedStages[stageIdx]) {
     // 猜測模式：未揭曉前只顯示階段名稱
     html += `<div class="guess-box">
-      <p style="font-size:14px;color:#d0d8e0;margin-bottom:10px;">🤔 猜一猜：《${TEXTS[currentText].name}》哪一句最適合放在「${d.name}」這個位置？</p>
+      <p style="font-size:14px;color:#6a6f6d;margin-bottom:10px;">🤔 猜一猜：《${TEXTS[currentText].name}》哪一句最適合放在「${d.name}」這個位置？</p>
       <button class="btn btn-show" onclick="revealStage()">🔮 揭曉例句</button>
     </div>`;
   } else {
@@ -870,7 +873,7 @@ function renderPool() {
     if (placements[s.id] !== undefined) div.classList.add('dropped');
     if (selectedId === s.id) div.classList.add('selected');
     div.dataset.sid = s.id;
-    div.innerHTML = `「${s.text}」` + (s.debatable ? ` <span style="font-size:11px;color:#E8923E;">⚖️可討論</span>` : '');
+    div.innerHTML = `「${s.text}」` + (s.debatable ? ` <span style="font-size:11px;color:#b07f2e;">⚖️可討論</span>` : '');
     div.addEventListener('click', function() {
       if (placements[s.id] !== undefined) return;
       selectedId = (selectedId === s.id) ? null : s.id;
@@ -949,8 +952,8 @@ function checkAnswers() {
     const status = isCorrect ? '✓ 正確' : (isPlaced ? '✗ 錯誤' : '— 未放置');
     const cls = isCorrect ? 'ri-correct' : (isPlaced ? 'ri-incorrect' : '');
     html += `<div class="result-item"><span class="${cls}">${status}</span> 「${s.text}」<br>
-      <span style="font-size:12px;color:#888;">參考：${correctLabel} | 你的：${isPlaced ? stageNames[userAns] : '—'}</span>
-      ${s.debatable && isCorrect ? `<br><span style="font-size:12px;color:#E8923E;">⚖️ ${s.debateNote}</span>` : ''}
+      <span style="font-size:12px;color:#9a958a;">參考：${correctLabel} | 你的：${isPlaced ? stageNames[userAns] : '—'}</span>
+      ${s.debatable && isCorrect ? `<br><span style="font-size:12px;color:#b07f2e;">⚖️ ${s.debateNote}</span>` : ''}
     </div>`;
   });
   const allCorrect = correct === curSents.length;
@@ -1018,10 +1021,10 @@ document.getElementById('pickerSubmit').addEventListener('click', function() {
     ? `${stageNames[key.stage]} 或 ${stageNames[key.altStage]}（可討論）`
     : stageNames[key.stage];
   result.innerHTML = `
-    <div style="font-weight:bold;margin-bottom:6px;${isCorrect ? 'color:#7BB36D' : 'color:#C9443E'}">
+    <div style="font-weight:bold;margin-bottom:6px;${isCorrect ? 'color:#5e8f52' : 'color:#b8544c'}">
       ${isCorrect ? '✓ 判斷正確！' : '✗ 判斷有出入'}
     </div>
-    <div style="font-size:13px;color:#b0b8c8;">
+    <div style="font-size:13px;color:#6a6f6d;">
       <strong>你的判斷：</strong>${stageNames[parseInt(userStage)]}<br>
       <strong>參考答案：</strong>${refAnswer}<br>
       <strong>理由：</strong>${key.reason}
@@ -1048,12 +1051,12 @@ document.getElementById('lyricSubmit').addEventListener('click', function() {
   ];
 
   result.innerHTML = `
-    <div style="color:#ddd;margin-bottom:6px;">
+    <div style="color:#3d4443;margin-bottom:6px;">
       「${lyric}」→ <strong>${stageNames[stage]}</strong>
     </div>
-    <div style="font-size:13px;color:#b0b8c8;">
+    <div style="font-size:13px;color:#6a6f6d;">
       ${hints[stage]}<br>
-      <span style="color:#888;font-size:12px;">💡 試想想：這句歌詞有沒有具體的景物？景物與情感的關係是怎樣的？</span>
+      <span style="color:#9a958a;font-size:12px;">💡 試想想：這句歌詞有沒有具體的景物？景物與情感的關係是怎樣的？</span>
     </div>
   `;
 });
@@ -1064,7 +1067,7 @@ document.getElementById('lyricSubmit').addEventListener('click', function() {
 function renderFingerprint() {
   const container = document.getElementById('fingerprintArea');
   if (!container) return;
-  const colors = ['#2D5B8A', '#7BB36D', '#C9443E'];
+  const colors = ['#5B83AC', '#8FBC85', '#CE7368'];
   const shortNames = ['景', '融', '情'];
   let html = '';
   for (const t of Object.values(TEXTS)) {
