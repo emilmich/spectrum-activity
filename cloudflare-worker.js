@@ -163,7 +163,6 @@ export default {
         });
       }
 
-      const isDemo = body.mode === 'demo';
       const messages = body.messages;
 
       // 基本驗證
@@ -181,15 +180,10 @@ export default {
         parts: [{ text: m.content }]
       }));
 
-      let systemText = SYSTEM_PROMPT;
-      if (isDemo) {
-        systemText += '\n\n【示範模式】學生已嘗試修改兩次，仍未能達到情景交融的要求。現請你以「【示範改寫】」為標題，寫一段經過改善的完整改寫版本（長度約 2-3 句），保留學生原作的核心景物與情感主題，但用更含蓄、更有層次的方式表達，展現情景交融的技巧。然後以「【改動說明】」為標題，簡短解釋你做了哪些改動、為甚麼這樣改是更好的情景交融寫法。語氣溫和、鼓勵。';
-      }
-
       const payload = {
-        systemInstruction: { parts: [{ text: systemText }] },
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
         contents: geminiContents,
-        generationConfig: { temperature: 0.6, maxOutputTokens: isDemo ? 900 : 700 }
+        generationConfig: { temperature: 0.6, maxOutputTokens: 700 }
       };
 
       // 教師可用 GEMINI_MODEL 變數指定型號；否則自動備援
