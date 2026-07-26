@@ -413,6 +413,24 @@ header p { color: #9a958a; font-size: 14px; margin-top: 4px; letter-spacing: 1px
   padding: 12px 16px; font-size: 13px; color: #8a7040; line-height: 1.6; margin-top: 12px;
 }
 
+/* Demo card */
+.demo-card {
+  background: #fdf8ec; border: 2px solid #d4a840; border-radius: 10px;
+  padding: 14px 16px; margin-top: 10px;
+}
+.demo-card .demo-label { font-size: 11px; font-weight: bold; color: #b07f2e; display: block; margin-bottom: 6px; }
+.demo-card .demo-text { font-size: 14px; color: #4a4234; line-height: 1.8; }
+.demo-card .demo-text strong { color: #3d4443; }
+.demo-card .demo-disclaimer { font-size: 11px; color: #b0a080; margin-top: 10px; border-top: 1px solid #e8d8b0; padding-top: 8px; }
+
+.demo-btn {
+  background: #d4a840; border: none; color: #fff; padding: 8px 20px;
+  border-radius: 20px; font-size: 14px; font-weight: bold;
+  cursor: pointer; font-family: inherit; transition: background 0.2s;
+  margin-top: 8px;
+}
+.demo-btn:hover { background: #c09330; }
+
 /* ── Responsive ── */
 @media (max-width: 700px) {
   .game-area { flex-direction: column; }
@@ -1193,6 +1211,9 @@ let selectedScenes = [];
 let conversation = [];   // {role:'user'|'assistant', content}
 let draftCount = 0;      // 今次創作的稿數
 let isSubmitting = false;
+let consecutiveNotGood = 0; // 連續未達標次數
+let demoCount = 0;          // 已示範次數（上限 3）
+let demoContent = '';       // 最近一次示範內容（供複製）
 
 const themeChipsEl = document.getElementById('themeChips');
 const sceneChipsEl = document.getElementById('sceneChips');
@@ -1328,6 +1349,13 @@ submitBtn.addEventListener('click', async () => {
     conversation.push({ role: 'assistant', content: data.feedback });
     incAttempts();
     draftCount++;
+    // 追蹤連續未達標次數
+    const fbStart = data.feedback.slice(0, 15);
+    if (fbStart.includes('未合乎') || fbStart.includes('大致合乎')) {
+      consecutiveNotGood++;
+    } else {
+      consecutiveNotGood = 0;
+    }
     writingInput.value = '';
     charNow.textContent = '0';
     writingInput.placeholder = '按老師的建議修改你的作品，然後再次提交……';
@@ -1347,8 +1375,75 @@ submitBtn.addEventListener('click', async () => {
     submitBtn.textContent = draftCount === 0 ? '📤 提交評改' : '📤 提交修改稿';
     updateAttemptInfo();
     renderThread();
+    // 連續兩次未達標 → 顯示示範按鈕
+    if (consecutiveNotGood >= 2 && demoCount < 3 && document.getElementById('demoBtn') === null) {
+      const demoEl = document.createElement('button');
+      demoEl.id = 'demoBtn';
+      demoEl.className = 'demo-btn';
+      demoEl.textContent = '🤔 兩次仍未達標？🔧 請老師示範';
+      demoEl.addEventListener('click', requestDemo);
+      feedbackThread.appendChild(demoEl);
+    }
   }
 });
+
+// ── 請求老師示範 ──
+async function requestDemo() {
+  if (isSubmitting || getAttempts() >= MAX_ATTEMPTS) return;
+  const btn = document.getElementById('demoBtn');
+  if (btn) btn.remove();
+  isSubmitting = true;
+  submitBtn.disabled = true;
+  const loadingEl = document.createElement('div');
+  loadingEl.className = 'loading-dots';
+  loadingEl.id = 'loadingDots';
+  loadingEl.textContent = 'AI 老師正在準備示範……';
+  feedbackThread.appendChild(loadingEl);
+
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 45000);
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: conversation.map(m => ({ role: m.role, content: m.content })),
+        mode: 'demo'
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'request failed');
+
+    incAttempts();
+    demoCount++;
+    demoContent = data.feedback;
+    const fb = formatFeedback(data.feedback);
+    const card = document.createElement('div');
+    card.className = 'demo-card';
+    card.id = 'demoResult';
+    card.innerHTML = `<span class="demo-label">📝 老師示範改寫</span>
+      <div class="demo-text">${fb}</div>
+      <div class="demo-disclaimer">🔥 此為教學示範，僅供學習參考——請用你自己的文字創作，不要直接抄錄。</div>`;
+    feedbackThread.appendChild(card);
+
+    consecutiveNotGood = 0;
+    writingInput.value = '';
+    writingInput.placeholder = '參考示範後，用你自己的文字重新創作……';
+    charNow.textContent = '0';
+  } catch (e) {
+    const err = document.createElement('div');
+    err.className = 'error-box';
+    err.textContent = '⚠️ 示範請求失敗（可能網絡不穩或服務繁忙），你可以繼續自己修改後提交。';
+    feedbackThread.appendChild(err);
+  } finally {
+    document.getElementById('loadingDots')?.remove();
+    isSubmitting = false;
+    submitBtn.disabled = false;
+    updateAttemptInfo();
+  }
+}
 
 // ── 複製成果 ──
 copyBtn.addEventListener('click', () => {
@@ -1362,6 +1457,9 @@ copyBtn.addEventListener('click', () => {
       out += `\n【老師評語】\n${m.content}\n`;
     }
   });
+  if (demoContent) {
+    out += `\n\n【老師示範改寫】\n${demoContent}\n（僅供學習參考）`;
+  }
   navigator.clipboard.writeText(out).then(() => {
     copyBtn.textContent = '✅ 已複製！';
     setTimeout(() => { copyBtn.textContent = '📋 複製成果'; }, 2000);
@@ -1372,6 +1470,9 @@ copyBtn.addEventListener('click', () => {
 newAttemptBtn.addEventListener('click', () => {
   conversation = [];
   draftCount = 0;
+  consecutiveNotGood = 0;
+  demoCount = 0;
+  demoContent = '';
   selectedTheme = null;
   selectedScenes = [];
   writingInput.value = '';
