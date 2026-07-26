@@ -11,7 +11,7 @@ const WORKER_VERSION = 'v6-deepseek';
 // 預設 DeepSeek（香港可用、中文強、OpenAI 格式）
 // 日後想換：喺 Cloudflare 加 API_BASE / API_MODEL 變數就得
 const DEFAULT_API_BASE = 'https://api.deepseek.com';
-const DEFAULT_API_MODEL = 'deepseek-chat';
+const DEFAULT_API_MODEL = 'deepseek-v4-flash';
 
 // ── 評改老師的系統提示詞 ──
 const SYSTEM_PROMPT = `你是香港中學文憑試（DSE）中文科的老師，專門評改學生以「情景交融」手法創作的句子或片段。學生正學習柳宗元《始得西山宴遊記》、蘇軾《念奴嬌·赤壁懷古》、李清照《聲聲慢·秋情》、辛棄疾《青玉案·元夕》四篇範文。
