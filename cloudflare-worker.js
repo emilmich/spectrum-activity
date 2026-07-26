@@ -14,11 +14,17 @@ async function listModels(apiKey) {
   try {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
     const data = await res.json();
-    return (data.models || [])
-      .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
-      .map(m => m.name.replace(/^models\//, ''))
-      .filter(n => !/image|tts|embedding|aqa|imagen/i.test(n));
-  } catch (e) { return []; }
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${data?.error?.message || 'unknown'}`);
+    return {
+      models: (data.models || [])
+        .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+        .map(m => m.name.replace(/^models\//, ''))
+        .filter(n => !/image|tts|embedding|aqa|imagen/i.test(n)),
+      error: null
+    };
+  } catch (e) {
+    return { models: [], error: e.message };
+  }
 }
 
 function sortCandidates(names) {
@@ -44,7 +50,7 @@ function callGemini(apiKey, model, payload) {
 async function callWithFallback(apiKey, payload) {
   const candidates = [];
   if (cachedModel) candidates.push(cachedModel);
-  candidates.push(...sortCandidates(await listModels(apiKey)));
+  candidates.push(...sortCandidates((await listModels(apiKey)).models));
 
   const tried = new Set();
   let lastErr = 'no available model';
@@ -125,12 +131,14 @@ export default {
       // 診斷模式：顯示版本、金鑰狀態、可用型號清單
       if (body.debug === true) {
         const k = env.GEMINI_API_KEY || '';
+        const listResult = k ? await listModels(k) : { models: [], error: 'no key' };
         return jsonResponse({
           version: WORKER_VERSION,
           keySet: k.length > 0,
           keyLength: k.length,
           visibleNames: Object.keys(env),
-          availableModels: k ? sortCandidates(await listModels(k)) : [],
+          availableModels: listResult.models,
+          listError: listResult.error,
           cachedModel
         });
       }
