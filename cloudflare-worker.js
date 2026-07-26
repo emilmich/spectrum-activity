@@ -48,9 +48,29 @@ function callGemini(apiKey, model, payload) {
 
 // 逐個候選型號實測，回傳第一個成功的回應
 async function callWithFallback(apiKey, payload) {
+  let modelsResult;
+  // 地區限制係間歇性——重試 model 清單（可能落到另一個數據中心）
+  for (let attempt = 0; attempt < 4; attempt++) {
+    modelsResult = await listModels(apiKey);
+    if (modelsResult.models.length > 0 || !modelsResult.error?.includes('location')) break;
+    if (attempt < 3) await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+  }
+
   const candidates = [];
   if (cachedModel) candidates.push(cachedModel);
-  candidates.push(...sortCandidates((await listModels(apiKey)).models));
+  candidates.push(...sortCandidates(modelsResult.models));
+
+  if (candidates.length === 0) {
+    if (cachedModel) {
+      // 有快取型號但清單讀唔到——照用快取
+      const r = await callGemini(apiKey, cachedModel, payload);
+      if (r.ok) return { res: r, model: cachedModel };
+    }
+    const msg = modelsResult.error?.includes('location')
+      ? '服務暫時受限，請稍後再試（自動重試中）'
+      : '無法連接 AI 服務，請檢查網絡後再試';
+    return { error: msg };
+  }
 
   const tried = new Set();
   let lastErr = 'no available model';
@@ -64,7 +84,7 @@ async function callWithFallback(apiKey, payload) {
     }
     const e = await r.json().catch(() => ({}));
     lastErr = e?.error?.message || `HTTP ${r.status}`;
-    if (cachedModel === cand) cachedModel = null; // 快取失效，清咗佢
+    if (cachedModel === cand) cachedModel = null;
   }
   return { error: lastErr };
 }
