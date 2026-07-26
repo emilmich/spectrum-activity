@@ -40,8 +40,9 @@ function sortCandidates(names) {
 }
 
 function callGemini(apiKey, model, payload) {
+  // 試 v1（穩定版）先，香港地區限制可能較寬鬆
   return fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`,
     { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
   );
 }
