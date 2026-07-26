@@ -1,94 +1,12 @@
 // ═══════════════════════════════════════════════════════════
-// 情景交融創作評改 — Cloudflare Worker 代理
-// 用途：接收學生作品 → 呼叫 Google Gemini API → 回傳評語
+// 情景交融創作評改 — Cloudflare Worker 代理（OpenAI 版）
+// 用途：接收學生作品 → 呼叫 OpenAI API → 回傳評語
 // 部署方法：見「設定指引.md」
 // ═══════════════════════════════════════════════════════════
 
 const ALLOWED_ORIGIN = 'https://emilmich.github.io';
-const WORKER_VERSION = 'v4-model-fallback';
-
-// ── 候選型號自動備援：逐個實測，邊個用到用邊個 ──
-let cachedModel = null;
-
-async function listModels(apiKey) {
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(`HTTP ${res.status}: ${data?.error?.message || 'unknown'}`);
-    return {
-      models: (data.models || [])
-        .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
-        .map(m => m.name.replace(/^models\//, ''))
-        .filter(n => !/image|tts|embedding|aqa|imagen/i.test(n)),
-      error: null
-    };
-  } catch (e) {
-    return { models: [], error: e.message };
-  }
-}
-
-function sortCandidates(names) {
-  const score = n => {
-    let s = 0;
-    if (/flash/i.test(n)) s += 100;      // flash 快且平
-    if (/lite/i.test(n)) s += 20;        // lite 更慳配額
-    const v = n.match(/(\d+(?:\.\d+)?)/);
-    if (v) s += parseFloat(v[1]);        // 版本愈新愈好
-    return s;
-  };
-  return [...names].sort((a, b) => score(b) - score(a));
-}
-
-function callGemini(apiKey, model, payload) {
-  // 試 v1（穩定版）先，香港地區限制可能較寬鬆
-  return fetch(
-    `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`,
-    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
-  );
-}
-
-// 逐個候選型號實測，回傳第一個成功的回應
-async function callWithFallback(apiKey, payload) {
-  let modelsResult;
-  // 地區限制係間歇性——重試 model 清單（可能落到另一個數據中心）
-  for (let attempt = 0; attempt < 4; attempt++) {
-    modelsResult = await listModels(apiKey);
-    if (modelsResult.models.length > 0 || !modelsResult.error?.includes('location')) break;
-    if (attempt < 3) await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
-  }
-
-  const candidates = [];
-  if (cachedModel) candidates.push(cachedModel);
-  candidates.push(...sortCandidates(modelsResult.models));
-
-  if (candidates.length === 0) {
-    if (cachedModel) {
-      // 有快取型號但清單讀唔到——照用快取
-      const r = await callGemini(apiKey, cachedModel, payload);
-      if (r.ok) return { res: r, model: cachedModel };
-    }
-    const msg = modelsResult.error?.includes('location')
-      ? '服務暫時受限，請稍後再試（自動重試中）'
-      : '無法連接 AI 服務，請檢查網絡後再試';
-    return { error: msg };
-  }
-
-  const tried = new Set();
-  let lastErr = 'no available model';
-  for (const cand of candidates) {
-    if (tried.has(cand)) continue;
-    tried.add(cand);
-    const r = await callGemini(apiKey, cand, payload);
-    if (r.ok) {
-      cachedModel = cand;
-      return { res: r, model: cand };
-    }
-    const e = await r.json().catch(() => ({}));
-    lastErr = e?.error?.message || `HTTP ${r.status}`;
-    if (cachedModel === cand) cachedModel = null;
-  }
-  return { error: lastErr };
-}
+const WORKER_VERSION = 'v5-openai';
+const OPENAI_MODEL = 'gpt-4o-mini';
 
 // ── 評改老師的系統提示詞 ──
 const SYSTEM_PROMPT = `你是香港中學文憑試（DSE）中文科的老師，專門評改學生以「情景交融」手法創作的句子或片段。學生正學習柳宗元《始得西山宴遊記》、蘇軾《念奴嬌·赤壁懷古》、李清照《聲聲慢·秋情》、辛棄疾《青玉案·元夕》四篇範文。
@@ -130,9 +48,30 @@ function jsonResponse(obj, status = 200) {
   });
 }
 
+async function callOpenAI(apiKey, messages, maxTokens = 700) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      messages: messages,
+      temperature: 0.6,
+      max_tokens: maxTokens
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content || '（未能取得回應）';
+}
+
 export default {
   async fetch(request, env) {
-    // 處理 CORS 預檢
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders() });
     }
@@ -140,7 +79,6 @@ export default {
       return new Response('Method Not Allowed', { status: 405 });
     }
 
-    // 只接受來自指定網站的請求
     const origin = request.headers.get('Origin') || '';
     if (!origin.startsWith(ALLOWED_ORIGIN)) {
       return jsonResponse({ error: 'Forbidden origin' }, 403);
@@ -149,24 +87,21 @@ export default {
     try {
       const body = await request.json();
 
-      // 診斷模式：顯示版本、金鑰狀態、可用型號清單
+      // 診斷模式
       if (body.debug === true) {
         const k = env.GEMINI_API_KEY || '';
-        const listResult = k ? await listModels(k) : { models: [], error: 'no key' };
         return jsonResponse({
           version: WORKER_VERSION,
           keySet: k.length > 0,
           keyLength: k.length,
           visibleNames: Object.keys(env),
-          availableModels: listResult.models,
-          listError: listResult.error,
-          cachedModel
+          model: OPENAI_MODEL
         });
       }
 
+      const isDemo = body.mode === 'demo';
       const messages = body.messages;
 
-      // 基本驗證
       if (!Array.isArray(messages) || messages.length === 0 || messages.length > 40) {
         return jsonResponse({ error: 'Invalid messages' }, 400);
       }
@@ -175,41 +110,24 @@ export default {
         return jsonResponse({ error: 'Text too long or missing' }, 400);
       }
 
-      // 轉換為 Gemini 格式
-      const geminiContents = messages.map(m => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: m.content }]
-      }));
-
-      const payload = {
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: geminiContents,
-        generationConfig: { temperature: 0.6, maxOutputTokens: 700 }
-      };
-
-      // 教師可用 GEMINI_MODEL 變數指定型號；否則自動備援
-      let data, usedModel;
-      if (env.GEMINI_MODEL) {
-        const r = await callGemini(env.GEMINI_API_KEY, env.GEMINI_MODEL, payload);
-        if (!r.ok) {
-          const e = await r.json().catch(() => ({}));
-          return jsonResponse({ error: `Gemini error: ${e?.error?.message || 'HTTP ' + r.status}` }, 502);
-        }
-        data = await r.json();
-        usedModel = env.GEMINI_MODEL;
-      } else {
-        const outcome = await callWithFallback(env.GEMINI_API_KEY, payload);
-        if (outcome.error) {
-          return jsonResponse({ error: `Gemini error: ${outcome.error}` }, 502);
-        }
-        data = await outcome.res.json();
-        usedModel = outcome.model;
+      // 組織 OpenAI 訊息
+      let systemText = SYSTEM_PROMPT;
+      if (isDemo) {
+        systemText += `\n\n【示範模式】學生已嘗試修改兩次，仍未能達到情景交融的要求。現請你以「【示範改寫】」為標題，寫一段經過改善的完整改寫版本（長度約 2-3 句），保留學生原作的核心景物與情感主題，但用更含蓄、更有層次的方式表達，展現情景交融的技巧。然後以「【改動說明】」為標題，簡短解釋你做了哪些改動、為甚麼這樣改是更好的情景交融寫法。語氣溫和、鼓勵。`;
       }
 
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
-        || '（暫時未能取得評語，請稍後再試。）';
+      const openaiMessages = [
+        { role: 'system', content: systemText },
+        ...messages.map(m => ({ role: m.role, content: m.content }))
+      ];
 
-      return jsonResponse({ feedback: text, model: usedModel, version: WORKER_VERSION });
+      const text = await callOpenAI(
+        env.GEMINI_API_KEY,
+        openaiMessages,
+        isDemo ? 900 : 700
+      );
+
+      return jsonResponse({ feedback: text, model: OPENAI_MODEL, version: WORKER_VERSION });
 
     } catch (e) {
       return jsonResponse({ error: `Server error: ${e.message}` }, 500);
