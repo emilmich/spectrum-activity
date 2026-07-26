@@ -5,8 +5,13 @@
 // ═══════════════════════════════════════════════════════════
 
 const ALLOWED_ORIGIN = 'https://emilmich.github.io';
-const WORKER_VERSION = 'v5-openai';
-const OPENAI_MODEL = 'gpt-4o-mini';
+const WORKER_VERSION = 'v6-deepseek';
+
+// ── API 供應商設定（可用 Cloudflare Variables 覆蓋）──
+// 預設 DeepSeek（香港可用、中文強、OpenAI 格式）
+// 日後想換：喺 Cloudflare 加 API_BASE / API_MODEL 變數就得
+const DEFAULT_API_BASE = 'https://api.deepseek.com';
+const DEFAULT_API_MODEL = 'deepseek-chat';
 
 // ── 評改老師的系統提示詞 ──
 const SYSTEM_PROMPT = `你是香港中學文憑試（DSE）中文科的老師，專門評改學生以「情景交融」手法創作的句子或片段。學生正學習柳宗元《始得西山宴遊記》、蘇軾《念奴嬌·赤壁懷古》、李清照《聲聲慢·秋情》、辛棄疾《青玉案·元夕》四篇範文。
@@ -48,15 +53,15 @@ function jsonResponse(obj, status = 200) {
   });
 }
 
-async function callOpenAI(apiKey, messages, maxTokens = 700) {
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+async function callLLM(apiKey, apiBase, model, messages, maxTokens = 700) {
+  const res = await fetch(`${apiBase}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: OPENAI_MODEL,
+      model: model,
       messages: messages,
       temperature: 0.6,
       max_tokens: maxTokens
@@ -95,7 +100,8 @@ export default {
           keySet: k.length > 0,
           keyLength: k.length,
           visibleNames: Object.keys(env),
-          model: OPENAI_MODEL
+          apiBase: env.API_BASE || DEFAULT_API_BASE,
+          model: env.API_MODEL || DEFAULT_API_MODEL
         });
       }
 
@@ -121,13 +127,15 @@ export default {
         ...messages.map(m => ({ role: m.role, content: m.content }))
       ];
 
-      const text = await callOpenAI(
+      const text = await callLLM(
         env.GEMINI_API_KEY,
+        env.API_BASE || DEFAULT_API_BASE,
+        env.API_MODEL || DEFAULT_API_MODEL,
         openaiMessages,
         isDemo ? 900 : 700
       );
 
-      return jsonResponse({ feedback: text, model: OPENAI_MODEL, version: WORKER_VERSION });
+      return jsonResponse({ feedback: text, model: env.API_MODEL || DEFAULT_API_MODEL, version: WORKER_VERSION });
 
     } catch (e) {
       return jsonResponse({ error: `Server error: ${e.message}` }, 500);
