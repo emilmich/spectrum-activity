@@ -1333,12 +1333,13 @@ submitBtn.addEventListener('click', async () => {
     writingInput.placeholder = '按老師的建議修改你的作品，然後再次提交……';
     copyBtn.style.display = '';
     newAttemptBtn.style.display = '';
-    buildChips(); // 鎖定主題與景物
+    buildChips();
+    renderThread();
   } catch (e) {
     conversation.pop(); // 收回未獲回應的一稿
     const err = document.createElement('div');
     err.className = 'error-box';
-    err.textContent = '⚠️ 未能取得評語（可能網絡不穩或服務繁忙），請稍後再按「提交評改」重試。';
+    err.textContent = '⚠️ 未能取得評語——' + (e.message || '請檢查網絡後再按「提交評改」重試');
     feedbackThread.appendChild(err);
   } finally {
     document.getElementById('loadingDots')?.remove();
@@ -1346,7 +1347,6 @@ submitBtn.addEventListener('click', async () => {
     submitBtn.disabled = false;
     submitBtn.textContent = draftCount === 0 ? '📤 提交評改' : '📤 提交修改稿';
     updateAttemptInfo();
-    renderThread();
   }
 });
 
